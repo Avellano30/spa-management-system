@@ -1,15 +1,13 @@
-import { useState } from 'react'
-import { DoubleNavbar } from './DoubleNavBar'
+import { Box } from "@mantine/core";
+import { useViewportSize } from "@mantine/hooks";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <DoubleNavbar></DoubleNavbar>
-      Test
-    </>
-  )
+export default function App() {
+  const { height } = useViewportSize();
+    return (
+        <>
+            <Box className="flex flex-col items-center justify-between" mih={height - 97}>
+                Dashboard
+            </Box>
+        </>
+    )
 }
-
-export default App
