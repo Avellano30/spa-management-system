@@ -5,10 +5,15 @@ import '@mantine/tiptap/styles.css';
 import '@mantine/notifications/styles.css';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router";
 
 //Routes
+import App from './App';
+import SignIn from "./pages/auth/SignIn.tsx";
 
 //Private Route
+import { AuthProvider } from './utils/AuthContext';
+import PrivateRoutes from './utils/PrivateRouter';
 
 // Mantine
 import { createTheme, MantineProvider } from '@mantine/core';
@@ -18,11 +23,6 @@ import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/code-highlight/styles.css';
 
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router";
-import PrivateRoutes from './utils/PrivateRouter';
-import { AuthProvider } from './utils/AuthContext';
-import SignIn from './pages/auth/signIn';
-import App from './App';
 
 const router = createBrowserRouter(
   createRoutesFromElements(

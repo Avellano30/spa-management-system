@@ -16,7 +16,7 @@ export default function SignIn() {
             navigate("/dashboard");
             return;
         }
-    }), [];
+    });
 
 
     return (
