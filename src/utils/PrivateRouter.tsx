@@ -49,9 +49,8 @@ export default function PrivateRoutes() {
     };
 
     const clearStorage = () => {
-        localStorage.removeItem('session');
-        localStorage.removeItem('index');
-        localStorage.removeItem('user');
+        localStorage.removeItem('user'),
+        localStorage.removeItem('session')
     };
 
     return authorized ? (
@@ -59,6 +58,6 @@ export default function PrivateRoutes() {
             <Outlet />
         </Layout>
     ) : (
-        <Navigate to="/sign-in" />
+        <Navigate to="/" />
     );
 }

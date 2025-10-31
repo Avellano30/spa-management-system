@@ -27,7 +27,7 @@ import App from './App';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path='/sign-in' element={<SignIn />} />
+      <Route path='/' element={<SignIn />} />
       <Route element={<PrivateRoutes />}>
         <Route path='/dashboard' element={<App />} />
       </Route>

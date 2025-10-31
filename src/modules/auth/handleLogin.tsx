@@ -6,7 +6,7 @@ import { notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
 import { rem } from "@mantine/core";
 
-const domain = import.meta.env.VITE_API_DOMAIN;
+const domain = import.meta.env.VITE_DOMAIN;
 
 export default function useHandleLogin() {
     const [errorMessage, setErrorMessage] = useState<boolean>(false);

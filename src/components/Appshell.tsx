@@ -1,56 +1,66 @@
-import { AppShell, Burger, Group, Image, Text, UnstyledButton } from '@mantine/core';
+import { AppShell, Group, Burger, ScrollArea, NavLink, Divider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconLogout, IconTruckDelivery, IconUsers, IconToolsKitchen2 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router';
+import { IconToolsKitchen2, IconTruckDelivery, IconUsers, IconLogout, IconClipboardData, IconMassage } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import useHandleLogout from '../modules/auth/handleLogout';
 
-const navData = [
-    { icon: IconToolsKitchen2, label: "Menu", href: "/products" },
-    { icon: IconTruckDelivery, label: "Deliveries", href: "/orders" },
-    { icon: IconUsers, label: "Users", href: "/users" },
-    { icon: IconLogout, label: "Sign out", href: "/settings" },
+type NavItem = { icon: any; label: string; href: string };
+
+const navData: NavItem[] = [
+    { icon: IconMassage, label: "Services", href: "#services" },
+    { icon: IconUsers, label: "Users", href: "#users" },
+    { icon: IconClipboardData, label: "Reports", href: "#reports" },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+function Layout({ children }: { children: React.ReactNode }) {
     const [opened, { toggle }] = useDisclosure();
-    const currentIndex = Number(localStorage.getItem("index")) || 0;
-    const navigate = useNavigate();
+    const [active, setActive] = useState(0);
+    const { handleLogout } = useHandleLogout();
 
     const items = navData.map((item, index) => (
-        <UnstyledButton
+        <NavLink
+            href={item.href}
             key={item.label}
-            onClick={() => { 
-                localStorage.setItem("index", String(index));
-                toggle();
-                navigate(item.href);
-            }}
-            style={{ display: 'flex', alignItems: 'center', padding:"8px", background: index === currentIndex ? '#DEE2E6' : 'inherit', fontWeight: 500, borderRadius: 10, marginBottom: 5 }}
-        >
-            <item.icon size="1.5rem" stroke={1.5} style={{ marginRight: 5 }} />
-            {item.label}
-        </UnstyledButton>
+            active={index === active}
+            label={item.label}
+            // description={item.description}
+            // rightSection={item.rightSection}
+            leftSection={<item.icon size={16} stroke={1.5} />}
+            onClick={() => setActive(index)}
+
+        />
     ));
 
     return (
         <AppShell
-            layout="alt"
-            header={{ height: 75 }}
+            header={{ height: 60 }}
+            navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
             padding="md"
         >
             <AppShell.Header>
-                <Group h="100%" px="md" style={{ justifyContent: 'space-between', width: '100%' }}>
-                    <Group>
-                        <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-                        <Image src={'Logo'} h={74} w={100}/>
-                        <Text fw={600}>SPAKOL</Text>
-                    </Group>
-                    <Group>
-                        {items}
-                    </Group>
+                <Group h="100%" px="md">
+                    <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+                    SPAKOL
                 </Group>
             </AppShell.Header>
-            <AppShell.Main style={{ display: 'flex', alignItems: 'center', flexDirection:"column"}}>
-                {children}
-            </AppShell.Main>
+            <AppShell.Navbar>
+                <Divider mt="md" mx="md" />
+                <AppShell.Section grow my="md" component={ScrollArea} px="md">
+                    {items}
+                </AppShell.Section>
+                <Divider mx="md" />
+                <AppShell.Section p="md">
+                    <NavLink
+                        href='/'
+                        label="Sign out"
+                        leftSection={<IconLogout size={16} stroke={1.5} />}
+                        onClick={handleLogout}
+                    />
+                </AppShell.Section>
+            </AppShell.Navbar>
+            <AppShell.Main>{children}</AppShell.Main>
         </AppShell>
     );
 }
+
+export default React.memo(Layout);
