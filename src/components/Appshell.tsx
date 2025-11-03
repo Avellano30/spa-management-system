@@ -1,13 +1,13 @@
 import { AppShell, Group, Burger, ScrollArea, NavLink, Divider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconToolsKitchen2, IconTruckDelivery, IconUsers, IconLogout, IconClipboardData, IconMassage } from '@tabler/icons-react';
+import { IconUsers, IconLogout, IconClipboardData, IconMassage } from '@tabler/icons-react';
 import React, { useState } from 'react';
 import useHandleLogout from '../modules/auth/handleLogout';
 
 type NavItem = { icon: any; label: string; href: string };
 
 const navData: NavItem[] = [
-    { icon: IconMassage, label: "Services", href: "#services" },
+    { icon: IconMassage, label: "Services", href: "/services" },
     { icon: IconUsers, label: "Users", href: "#users" },
     { icon: IconClipboardData, label: "Reports", href: "#reports" },
 ];
