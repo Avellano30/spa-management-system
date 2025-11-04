@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Image, Modal, Table } from '@mantine/core';
+import { Button, Flex, Image, Modal, Table, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { showNotification } from '@mantine/notifications';
@@ -74,10 +74,13 @@ export default function Services() {
       showNotification({ color: 'red', title: 'Error', message: err.message });
     }
   };
-  
+
   return (
     <div>
-      <Button mb="md" onClick={openAdd}>Add Service</Button>
+      <Flex justify="space-between" align="center" mb="md">
+        <Title order={2}>Services</Title>
+        <Button onClick={openAdd} justify='flex-end'>Add Service</Button>
+      </Flex>
       <Table striped highlightOnHover withTableBorder>
         <Table.Thead>
           <Table.Tr>
@@ -126,11 +129,11 @@ export default function Services() {
       </Table>
 
       <Modal opened={addOpened} onClose={closeAdd} title="Add Service" centered>
-        <ServiceForm onSubmit={handleAdd} submitLabel="Add Service" loading={adding}/>
+        <ServiceForm onSubmit={handleAdd} submitLabel="Add Service" loading={adding} />
       </Modal>
 
       <Modal opened={editOpened} onClose={closeEdit} title="Edit Service" centered>
-        {selected && <ServiceForm initial={selected} onSubmit={handleEdit} submitLabel="Save Changes" loading={editing}/>}
+        {selected && <ServiceForm initial={selected} onSubmit={handleEdit} submitLabel="Save Changes" loading={editing} />}
       </Modal>
 
       <Modal opened={delOpened} onClose={closeDelete} title="Confirm Delete" centered>

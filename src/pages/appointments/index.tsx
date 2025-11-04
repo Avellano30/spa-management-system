@@ -8,6 +8,7 @@ import {
   Select,
   TextInput,
   Flex,
+  Title,
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import {
@@ -101,7 +102,7 @@ export default function Appointments() {
   return (
     <div>
       <Flex justify="space-between" align="center" mb="md">
-        <h1>Appointments</h1>
+        <Title order={2} >Appointments</Title>
         <Group>
           <TextInput
             placeholder="Search by client or service"

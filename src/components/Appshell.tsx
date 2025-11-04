@@ -39,10 +39,10 @@ function Layout({ children }: { children: React.ReactNode }) {
             navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
             padding="md"
         >
-            <AppShell.Header>
+            <AppShell.Header bg="black">
                 <Group h="100%" px="md">
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-                    SPAKOL
+                    <span className="text-white font-medium">Spa Management System</span>
                 </Group>
             </AppShell.Header>
             <AppShell.Navbar>
