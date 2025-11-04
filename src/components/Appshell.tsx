@@ -1,33 +1,34 @@
 import { AppShell, Group, Burger, ScrollArea, NavLink, Divider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconUsers, IconLogout, IconClipboardData, IconMassage } from '@tabler/icons-react';
-import React, { useState } from 'react';
+import { IconUsers, IconLogout, IconClipboardData, IconMassage, IconSettings, IconLayoutDashboard } from '@tabler/icons-react';
+import React from 'react';
 import useHandleLogout from '../modules/auth/handleLogout';
+import { useLocation } from 'react-router';
 
 type NavItem = { icon: any; label: string; href: string };
 
 const navData: NavItem[] = [
+    { icon: IconLayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: IconMassage, label: "Services", href: "/services" },
     { icon: IconUsers, label: "Users", href: "#users" },
     { icon: IconClipboardData, label: "Reports", href: "#reports" },
+    { icon: IconSettings, label: "Settings", href: "/settings" },
 ];
 
 function Layout({ children }: { children: React.ReactNode }) {
     const [opened, { toggle }] = useDisclosure();
-    const [active, setActive] = useState(0);
     const { handleLogout } = useHandleLogout();
+    const location = useLocation();
 
-    const items = navData.map((item, index) => (
+    const items = navData.map((item) => (
         <NavLink
             href={item.href}
             key={item.label}
-            active={index === active}
+            active={location.pathname.startsWith(item.href)}
             label={item.label}
             // description={item.description}
             // rightSection={item.rightSection}
             leftSection={<item.icon size={16} stroke={1.5} />}
-            onClick={() => setActive(index)}
-
         />
     ));
 

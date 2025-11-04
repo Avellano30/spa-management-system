@@ -22,7 +22,8 @@ import PrivateRoutes from './utils/PrivateRouter';
 //Routes
 import App from './App';
 import SignIn from "./pages/auth/SignIn.tsx";
-import Services from "./pages/services/services.tsx";
+import Services from "./pages/services/index.tsx";
+import Settings from './pages/settings/index.tsx';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
             <Route element={<PrivateRoutes/>}>
                 <Route path='/dashboard' element={<App/>}/>
                 <Route path='/services' element={<Services/>}/>
+                <Route path='/settings' element={<Settings/>}/>
             </Route>
         </>
     )
