@@ -18,6 +18,7 @@ import {
   rescheduleAppointment,
   type Appointment,
 } from "../../api/appointments";
+import { useSearchParams } from "react-router";
 import { DateInput, TimePicker } from "@mantine/dates";
 
 export default function Appointments() {
@@ -31,19 +32,19 @@ export default function Appointments() {
   const [newDate, setNewDate] = useState<string | null>(null);
   const [newTime, setNewTime] = useState<string | undefined>(undefined);
 
+  const [searchParams] = useSearchParams();
+  const paramStatusFilter = searchParams.get("status");
+  
   const load = async () => {
     try {
-      const data = await getAppointments();
+      const data = await getAppointments(paramStatusFilter ? { status: paramStatusFilter } : undefined);
       setAppointments(data);
-      setFiltered(data);
     } catch (err: any) {
       showNotification({ color: "red", title: "Error", message: err.message });
     }
   };
-
-  useEffect(() => {
-    load();
-  }, []);
+  
+  useEffect(() => { load(); }, [statusFilter]);
 
   // Apply filters automatically
   useEffect(() => {
