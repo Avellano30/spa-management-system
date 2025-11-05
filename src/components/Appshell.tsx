@@ -41,7 +41,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         >
             <AppShell.Header bg="black">
                 <Group h="100%" px="md">
-                    <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+                    <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" color='white'/>
                     <span className="text-white font-medium">Spa Management System</span>
                 </Group>
             </AppShell.Header>
