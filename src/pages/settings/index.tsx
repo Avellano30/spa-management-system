@@ -1,7 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Button, NumberInput, TextInput, Group, Paper, Title, Loader } from '@mantine/core';
+import {
+  Button,
+  NumberInput,
+  TextInput,
+  Group,
+  Paper,
+  Title,
+  Loader,
+  Stack,
+  Divider,
+  Box,
+} from '@mantine/core';
+import { IconSettings2 } from '@tabler/icons-react';
 import { showNotification } from '@mantine/notifications';
-import { getSpaSettings, createSpaSettings, updateSpaSettings, type SpaSettings } from '../../api/settings';
+import {
+  getSpaSettings,
+  createSpaSettings,
+  updateSpaSettings,
+  type SpaSettings,
+} from '../../api/settings';
 
 export default function Settings() {
   const [settings, setSettings] = useState<SpaSettings | null>(null);
@@ -61,38 +78,68 @@ export default function Settings() {
   }
 
   return (
-    <Paper shadow="sm" p="xl" radius="md" className="max-w-lg mx-auto mt-8">
-      <Title order={3} mb="md">Spa Settings</Title>
+    <Box className="flex justify-center w-full">
+      <Paper
+        shadow="md"
+        radius="lg"
+        p="xl"
+        className="w-full max-w-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-indigo-100"
+      >
+        <Group mb="lg" align="center">
+          <IconSettings2 size={28} className="text-indigo-600" />
+          <div>
+            <Title order={3} className="text-indigo-900">Spa Configuration</Title>
+            <p className="text-sm text-gray-600 mt-0.5">
+              Manage your spa’s core operational settings
+            </p>
+          </div>
+        </Group>
 
-      <NumberInput
-        label="Total Rooms"
-        min={1}
-        value={totalRooms}
-        onChange={(v) => setTotalRooms(Number(v) || 1)}
-        mb="sm"
-      />
+        <Divider mb="md" />
 
-      <TextInput
-        label="Opening Time"
-        type="time"
-        value={openingTime}
-        onChange={(e) => setOpeningTime(e.currentTarget.value)}
-        mb="sm"
-      />
+        <Stack gap="md">
+          <NumberInput
+            label="Total Rooms"
+            min={1}
+            value={totalRooms}
+            onChange={(v) => setTotalRooms(Number(v) || 1)}
+            description="Total number of rooms available for services"
+            radius="md"
+          />
 
-      <TextInput
-        label="Closing Time"
-        type="time"
-        value={closingTime}
-        onChange={(e) => setClosingTime(e.currentTarget.value)}
-        mb="sm"
-      />
+          <Group grow>
+            <TextInput
+              label="Opening Time"
+              type="time"
+              value={openingTime}
+              onChange={(e) => setOpeningTime(e.currentTarget.value)}
+              radius="md"
+            />
 
-      <Group mt="md" justify="flex-end">
-        <Button loading={saving} onClick={handleSave}>
-          {settings ? 'Save Changes' : 'Create Settings'}
-        </Button>
-      </Group>
-    </Paper>
+            <TextInput
+              label="Closing Time"
+              type="time"
+              value={closingTime}
+              onChange={(e) => setClosingTime(e.currentTarget.value)}
+              radius="md"
+            />
+          </Group>
+        </Stack>
+
+        <Divider my="lg" />
+
+        <Group justify="flex-end">
+          <Button
+            size="md"
+            radius="md"
+            color="indigo"
+            loading={saving}
+            onClick={handleSave}
+          >
+            {settings ? 'Save Changes' : 'Create Settings'}
+          </Button>
+        </Group>
+      </Paper>
+    </Box>
   );
 }

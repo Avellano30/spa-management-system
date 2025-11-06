@@ -11,7 +11,7 @@ const navData: NavItem[] = [
     { icon: IconLayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: IconCalendarWeek, label: "Appointments", href: "/appointments" },
     { icon: IconMassage, label: "Services", href: "/services" },
-    { icon: IconUsers, label: "Users", href: "#users" },
+    { icon: IconUsers, label: "Users", href: "/users" },
     { icon: IconClipboardData, label: "Reports", href: "#reports" },
     { icon: IconSettings, label: "Settings", href: "/settings" },
 ];

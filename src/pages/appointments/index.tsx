@@ -7,8 +7,12 @@ import {
   Badge,
   Select,
   TextInput,
-  Flex,
   Title,
+  Stack,
+  ScrollArea,
+  Card,
+  Loader,
+  Text
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import {
@@ -21,6 +25,7 @@ import {
 } from "../../api/appointments";
 import { useSearchParams } from "react-router";
 import { DateInput, TimePicker } from "@mantine/dates";
+import { IconRefresh, IconSearch } from "@tabler/icons-react";
 
 export default function Appointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -35,16 +40,21 @@ export default function Appointments() {
 
   const [searchParams] = useSearchParams();
   const paramStatusFilter = searchParams.get("status");
-  
+
+  const [loading, setLoading] = useState(true);
+
   const load = async () => {
     try {
+      setLoading(true);
       const data = await getAppointments(paramStatusFilter ? { status: paramStatusFilter } : undefined);
       setAppointments(data);
     } catch (err: any) {
       showNotification({ color: "red", title: "Error", message: err.message });
+    } finally {
+      setLoading(false); // stop loading after done (success or error)
     }
   };
-  
+
   useEffect(() => { load(); }, [statusFilter]);
 
   // Apply filters automatically
@@ -100,15 +110,15 @@ export default function Appointments() {
   };
 
   return (
-    <div>
-      <Flex justify="space-between" align="center" mb="md">
-        <Title order={2} >Appointments</Title>
+    <Stack p="md">
+      <Group justify="space-between">
+        <Title order={2}>Appointment Management</Title>
         <Group>
           <TextInput
-            placeholder="Search by client or service"
+            placeholder="Search by client or service..."
             value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            style={{ width: 250 }}
+            onChange={(e) => setSearch(e.target.value)}
+            rightSection={<IconSearch size={16} />}
           />
           <Select
             placeholder="Filter by status"
@@ -124,103 +134,112 @@ export default function Appointments() {
             ]}
             style={{ width: 180 }}
           />
-          <Button variant="outline" onClick={load}>
+          <Button
+            leftSection={<IconRefresh size={16} />}
+            variant="light"
+            onClick={load}
+          >
             Refresh
           </Button>
         </Group>
-      </Flex>
+      </Group>
 
-      <Table striped highlightOnHover withTableBorder>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Client</Table.Th>
-            <Table.Th>Service</Table.Th>
-            <Table.Th>Date</Table.Th>
-            <Table.Th>Time</Table.Th>
-            <Table.Th>Status</Table.Th>
-            <Table.Th>Actions</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {filtered.length > 0 ? (
-            filtered.map((a) => (
-              <Table.Tr key={a._id}>
-                <Table.Td>
-                  {a.clientId.firstname} {a.clientId.lastname}
-                </Table.Td>
-                <Table.Td>{a.serviceId.name}</Table.Td>
-                <Table.Td>{new Date(a.date).toLocaleDateString()}</Table.Td>
-                <Table.Td>
-                  {a.startTime} - {a.endTime}
-                </Table.Td>
-                <Table.Td>
-                  <Badge color={statusColor(a.status)}>{a.status}</Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="xs">
-                    {a.status === "Pending" && (
-                      <Button
-                        size="xs"
-                        onClick={() =>
-                          handleAction(a._id, approveAppointment, "Approved")
-                        }
-                      >
-                        Approve
-                      </Button>
-                    )}
-                    {(a.status === "Pending" || a.status === "Approved") && (
-                      <Button
-                        size="xs"
-                        color="red"
-                        onClick={() =>
-                          handleAction(a._id, cancelAppointment, "Cancelled")
-                        }
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                    {(a.status === "Approved" ||
-                      a.status === "Rescheduled") && (
-                      <>
-                        <Button
-                          size="xs"
-                          variant="outline"
-                          onClick={() => {
-                            setSelected(a);
-                            setRescheduleModal(true);
-                          }}
-                        >
-                          Reschedule
-                        </Button>
-                        <Button
-                          size="xs"
-                          color="teal"
-                          onClick={() =>
-                            handleAction(
-                              a._id,
-                              completeAppointment,
-                              "Completed"
-                            )
-                          }
-                        >
-                          Complete
-                        </Button>
-                      </>
-                    )}
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))
-          ) : (
-            <Table.Tr>
-              <Table.Td colSpan={6} style={{ textAlign: "center" }}>
-                No appointments found
-              </Table.Td>
-            </Table.Tr>
-          )}
-        </Table.Tbody>
-      </Table>
-
+      <Card shadow="sm" p="md" radius="md">
+        {loading ? (
+          <Group justify="center" p="xl">
+            <Loader />
+          </Group>
+        ) : filtered.length === 0 ? (
+          <Text c="dimmed" ta="center">
+            No appointment found.
+          </Text>
+        ) : (
+          <ScrollArea>
+            <Table highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Client</Table.Th>
+                  <Table.Th>Service</Table.Th>
+                  <Table.Th>Date</Table.Th>
+                  <Table.Th>Time</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Actions</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {filtered.map((a) => (
+                  <Table.Tr key={a._id}>
+                    <Table.Td>
+                      {a.clientId.firstname} {a.clientId.lastname}
+                    </Table.Td>
+                    <Table.Td>{a.serviceId.name}</Table.Td>
+                    <Table.Td>{new Date(a.date).toLocaleDateString()}</Table.Td>
+                    <Table.Td>
+                      {a.startTime} - {a.endTime}
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color={statusColor(a.status)}>{a.status}</Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap="xs">
+                        {a.status === "Pending" && (
+                          <Button
+                            size="xs"
+                            onClick={() =>
+                              handleAction(a._id, approveAppointment, "Approved")
+                            }
+                          >
+                            Approve
+                          </Button>
+                        )}
+                        {(a.status === "Pending" || a.status === "Approved") && (
+                          <Button
+                            size="xs"
+                            color="red"
+                            onClick={() =>
+                              handleAction(a._id, cancelAppointment, "Cancelled")
+                            }
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                        {(a.status === "Approved" ||
+                          a.status === "Rescheduled") && (
+                            <>
+                              <Button
+                                size="xs"
+                                variant="outline"
+                                onClick={() => {
+                                  setSelected(a);
+                                  setRescheduleModal(true);
+                                }}
+                              >
+                                Reschedule
+                              </Button>
+                              <Button
+                                size="xs"
+                                color="teal"
+                                onClick={() =>
+                                  handleAction(
+                                    a._id,
+                                    completeAppointment,
+                                    "Completed"
+                                  )
+                                }
+                              >
+                                Complete
+                              </Button>
+                            </>
+                          )}
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
+        )}
+      </Card>
       <Modal
         opened={rescheduleModal}
         onClose={() => setRescheduleModal(false)}
@@ -239,7 +258,7 @@ export default function Appointments() {
           Save Changes
         </Button>
       </Modal>
-    </div>
+    </Stack>
   );
 }
 
