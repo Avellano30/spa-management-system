@@ -21,7 +21,7 @@ export default function SignIn() {
 
     return (
         <>
-            <div className="min-h-screen flex items-center justify-center bg-black">
+            <div className="min-h-screen flex items-center justify-center">
                 <div className="max-w-[394px] w-full bg-white rounded-lg">
                     <div className="px-10 py-8 rounded-lg shadow-lg">
                         {/* <img src="/Elemes_Logo.png" alt="Elemes Logo" className="h-[50px] mx-auto" /> */}

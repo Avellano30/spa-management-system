@@ -26,6 +26,7 @@ import Services from "./pages/services/index.tsx";
 import Settings from './pages/settings/index.tsx';
 import Appointments from './pages/appointments/index.tsx';
 import Users from './pages/users/index.tsx';
+import Reports from './pages/reports/index.tsx';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -36,6 +37,7 @@ const router = createBrowserRouter(
                 <Route path='/appointments' element={<Appointments />} />
                 <Route path='/services' element={<Services />} />
                 <Route path='/users' element={<Users />} />
+                <Route path='/reports' element={<Reports />} />
                 <Route path='/settings' element={<Settings />} />
             </Route>
         </>
