@@ -162,6 +162,7 @@ export default function Appointments() {
                   <Table.Th>Service</Table.Th>
                   <Table.Th>Date</Table.Th>
                   <Table.Th>Time</Table.Th>
+                  <Table.Th>Notes</Table.Th>
                   <Table.Th>Status</Table.Th>
                   <Table.Th>Actions</Table.Th>
                 </Table.Tr>
@@ -172,10 +173,14 @@ export default function Appointments() {
                     <Table.Td>
                       {a.clientId.firstname} {a.clientId.lastname}
                     </Table.Td>
-                    <Table.Td>{a.serviceId.name}</Table.Td>
+                    <Table.Td>{a.serviceId ? a.serviceId.name : "Service no longer exists."}
+                    </Table.Td>
                     <Table.Td>{new Date(a.date).toLocaleDateString()}</Table.Td>
                     <Table.Td>
                       {a.startTime} - {a.endTime}
+                    </Table.Td>
+                    <Table.Td>
+                        {a.notes || "-"}
                     </Table.Td>
                     <Table.Td>
                       <Badge color={statusColor(a.status)}>{a.status}</Badge>
