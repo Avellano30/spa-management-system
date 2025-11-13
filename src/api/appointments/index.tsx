@@ -1,5 +1,16 @@
 const endpoint = import.meta.env.VITE_API_ENDPOINT || "http://localhost:3000";
 
+interface Payment {
+    amount: number;
+    method: "Online" | "Cash";
+    type: "Balance" | "Downpayment" | "Full" | "Refund";
+    status: "Pending" | "Completed" | "Failed";
+    transactionId?: string;
+    remarks?: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface Appointment {
     _id: string;
     clientId: { _id: string; firstname: string; lastname: string; email: string };
@@ -9,6 +20,7 @@ export interface Appointment {
     endTime: string;
     status: "Pending" | "Approved" | "Cancelled" | "Rescheduled" | "Completed";
     notes?: string;
+    payments?: Payment[];
 }
 
 export async function getAppointments(params?: { status?: string }): Promise<Appointment[]> {
