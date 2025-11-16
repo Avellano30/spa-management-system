@@ -1,9 +1,10 @@
 import { AppShell, Group, Burger, ScrollArea, NavLink, Divider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconUsers, IconLogout, IconClipboardData, IconMassage, IconSettings, IconLayoutDashboard, IconCalendarWeek } from '@tabler/icons-react';
+import { IconUsers, IconLogout, IconMassage, IconSettings, IconLayoutDashboard, IconCalendarWeek } from '@tabler/icons-react';
 import React from 'react';
 import useHandleLogout from '../modules/auth/handleLogout';
 import { useLocation } from 'react-router';
+import RealTimeClock from "../utils/RealTimeClock.tsx";
 
 type NavItem = { icon: any; label: string; href: string };
 
@@ -20,7 +21,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     const [opened, { toggle }] = useDisclosure();
     const { handleLogout } = useHandleLogout();
     const location = useLocation();
-
+    const datetime = RealTimeClock();
     const items = navData.map((item) => (
         <NavLink
             href={item.href}
@@ -46,6 +47,9 @@ function Layout({ children }: { children: React.ReactNode }) {
                 </Group>
             </AppShell.Header>
             <AppShell.Navbar>
+                <AppShell.Section mt="md" mx="md" >
+                    {datetime}
+                </AppShell.Section>
                 <Divider mt="md" mx="md" />
                 <AppShell.Section grow my="md" component={ScrollArea} px="md">
                     {items}
