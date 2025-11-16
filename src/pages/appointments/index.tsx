@@ -187,7 +187,7 @@ export default function Appointments() {
                                 {filtered.map((a) => (
                                     <Table.Tr key={a._id}>
                                         <Table.Td>
-                                            {a.clientId.firstname} {a.clientId.lastname}
+                                            {a.clientId?.firstname} {a.clientId?.lastname}
                                         </Table.Td>
                                         <Table.Td>{a.serviceId ? a.serviceId.name : "Service no longer exists."}
                                         </Table.Td>

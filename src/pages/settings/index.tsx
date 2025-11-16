@@ -99,11 +99,11 @@ export default function Settings() {
 
         <Stack gap="md">
           <NumberInput
-            label="Total Rooms"
+            label="Total Beds"
             min={1}
             value={totalRooms}
             onChange={(v) => setTotalRooms(Number(v) || 1)}
-            description="Total number of rooms available for services"
+            description="Total number of beds available for services"
             radius="md"
           />
 
