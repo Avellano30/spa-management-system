@@ -1,6 +1,14 @@
 import { AppShell, Group, Burger, ScrollArea, NavLink, Divider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconUsers, IconLogout, IconMassage, IconSettings, IconLayoutDashboard, IconCalendarWeek } from '@tabler/icons-react';
+import {
+    IconUsers,
+    IconLogout,
+    IconMassage,
+    IconSettings,
+    IconLayoutDashboard,
+    IconCalendarWeek,
+    IconClipboardData
+} from '@tabler/icons-react';
 import React from 'react';
 import useHandleLogout from '../modules/auth/handleLogout';
 import { useLocation } from 'react-router';
@@ -13,7 +21,7 @@ const navData: NavItem[] = [
     { icon: IconCalendarWeek, label: "Appointments", href: "/appointments" },
     { icon: IconMassage, label: "Services", href: "/services" },
     { icon: IconUsers, label: "Users", href: "/users" },
-    // { icon: IconClipboardData, label: "Reports", href: "/reports" },
+    { icon: IconClipboardData, label: "Reports", href: "/reports" },
     { icon: IconSettings, label: "Settings", href: "/settings" },
 ];
 
@@ -28,8 +36,6 @@ function Layout({ children }: { children: React.ReactNode }) {
             key={item.label}
             active={location.pathname.startsWith(item.href)}
             label={item.label}
-            // description={item.description}
-            // rightSection={item.rightSection}
             leftSection={<item.icon size={16} stroke={1.5} />}
         />
     ));
