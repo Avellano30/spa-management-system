@@ -14,6 +14,7 @@ import {
   Loader,
   Text,
   Flex,
+  NumberInput,
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import {
@@ -23,6 +24,7 @@ import {
   completeAppointment,
   rescheduleAppointment,
   type Appointment,
+  createCashPayment,
 } from "../../api/appointments";
 import { useSearchParams } from "react-router";
 import { DateInput, TimePicker } from "@mantine/dates";
@@ -50,6 +52,11 @@ export default function Appointments() {
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelNotes, setCancelNotes] = useState("");
   const [selectedForCancel, setSelectedForCancel] = useState<Appointment | null>(null);
+
+  const [cashModal, setCashModal] = useState(false);
+  const [cashAmount, setCashAmount] = useState<string | number>(0);
+  const [cashRemarks, setCashRemarks] = useState("");
+  const [selectedForCash, setSelectedForCash] = useState<Appointment | null>(null);
 
   const [searchParams] = useSearchParams();
   const paramStatusFilter = searchParams.get("status");
@@ -80,9 +87,9 @@ export default function Appointments() {
       const s = search.toLowerCase();
       temp = temp.filter(
         (a) =>
-          a.clientId.firstname.toLowerCase().includes(s) ||
-          a.clientId.lastname.toLowerCase().includes(s) ||
-          a.serviceId.name.toLowerCase().includes(s)
+          (a.clientId?.firstname?.toLowerCase() || "").includes(s) ||
+          (a.clientId?.lastname?.toLowerCase() || "").includes(s) ||
+          (a.serviceId?.name?.toLowerCase() || "").includes(s)
       );
     }
     setFiltered(temp);
@@ -129,6 +136,58 @@ export default function Appointments() {
       setCancelModal(false);
       setCancelNotes("");
       setSelectedForCancel(null);
+      load();
+    } catch (err: any) {
+      showNotification({ color: "red", title: "Error", message: err.message });
+    }
+  };
+
+  // Open cash payment modal
+  const openCashModal = (appt: Appointment) => {
+    setSelectedForCash(appt);
+    const totalPaid = appt.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+    const remaining = appt.serviceId.price - totalPaid;
+    setCashAmount(remaining);
+    setCashRemarks("");
+    setCashModal(true);
+  };
+
+  const handleCashPayment = async () => {
+    if (!selectedForCash || !cashAmount || Number(cashAmount) <= 0) return;
+
+    try {
+      await createCashPayment(selectedForCash._id, "Balance", Number(cashAmount), cashRemarks);
+      showNotification({ color: "green", title: "Success", message: "Cash payment recorded." });
+      setCashModal(false);
+      setCashAmount(0);
+      setCashRemarks("");
+      setSelectedForCash(null);
+      load();
+    } catch (err: any) {
+      showNotification({ color: "red", title: "Error", message: err.message });
+    }
+  };
+
+  const handleComplete = async (appt: Appointment) => {
+    try {
+      const totalPaid = appt.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+      const remaining = appt.serviceId.price - totalPaid;
+
+      if (remaining > 0) {
+        showNotification({
+          color: "red",
+          title: "Cannot Complete",
+          message: `Appointment has an unpaid balance of ₱${remaining}.`,
+        });
+        return;
+      }
+
+      await completeAppointment(appt._id);
+      showNotification({
+        color: "green",
+        title: "Success",
+        message: "Appointment completed.",
+      });
       load();
     } catch (err: any) {
       showNotification({ color: "red", title: "Error", message: err.message });
@@ -185,68 +244,72 @@ export default function Appointments() {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {filtered.map((a) => (
-                  <Table.Tr key={a._id}>
-                    <Table.Td>
-                      {a.clientId?.firstname || "Deleted Client"} {a.clientId?.lastname}
-                    </Table.Td>
-                    <Table.Td>{a.serviceId ? a.serviceId.name : "Service no longer exists."}</Table.Td>
-                    <Table.Td>{new Date(a.date).toLocaleDateString()}</Table.Td>
-                    <Table.Td>
-                      <Flex>
-                        <span>{formatTime(a.startTime)}</span>
-                        <span>&nbsp;-&nbsp;</span>
-                        <span>{formatTime(a.endTime)}</span>
-                      </Flex>
-                    </Table.Td>
-                    <Table.Td>{a.notes || "-"}</Table.Td>
-                    <Table.Td>
-                      <Badge color={statusColor(a.status)}>{a.status}</Badge>
-                    </Table.Td>
-                    <Table.Td>{a.payments?.length ? a.payments[0]?.method : "Cash"}</Table.Td>
-                    <Table.Td>
-                      <PaymentHistoryModal payments={a.payments} />
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap="xs">
-                        {a.status === "Pending" && (
-                          <Button
-                            size="xs"
-                            onClick={() => handleAction(a._id, approveAppointment, "Approved")}
-                          >
-                            Approve
-                          </Button>
-                        )}
-                        {(a.status === "Pending" || a.status === "Approved") && (
-                          <Button size="xs" color="red" onClick={() => openCancelModal(a)}>
-                            Cancel
-                          </Button>
-                        )}
-                        {(a.status === "Approved" || a.status === "Rescheduled") && (
-                          <>
-                            <Button
-                              size="xs"
-                              variant="outline"
-                              onClick={() => {
-                                setSelected(a);
-                                setRescheduleModal(true);
-                              }}
-                            >
-                              Reschedule
+                {filtered.map((a) => {
+                  const totalPaid = a.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+                  const remaining = a.serviceId?.price - totalPaid;
+                  return (
+                    <Table.Tr key={a._id}>
+                      <Table.Td>
+                        {a.clientId?.firstname ? `${a.clientId.firstname} ${a.clientId.lastname}` : "Deleted Client"}
+                      </Table.Td>
+                      <Table.Td>{a.serviceId ? a.serviceId.name : "Service no longer exists."}</Table.Td>
+                      <Table.Td>{new Date(a.date).toLocaleDateString()}</Table.Td>
+                      <Table.Td>
+                        <Flex>
+                          <span>{formatTime(a.startTime)}</span>
+                          <span>&nbsp;-&nbsp;</span>
+                          <span>{formatTime(a.endTime)}</span>
+                        </Flex>
+                      </Table.Td>
+                      <Table.Td>{a.notes || "-"}</Table.Td>
+                      <Table.Td>
+                        <Badge color={statusColor(a.status)}>{a.status}</Badge>
+                      </Table.Td>
+                      <Table.Td>{a.payments?.length ? a.payments[0]?.method : "Cash"}</Table.Td>
+                      <Table.Td>
+                        <PaymentHistoryModal payments={a.payments} />
+                      </Table.Td>
+                      <Table.Td>
+                        <Group gap="xs">
+                          {a.status === "Pending" && (
+                            <Button size="xs" onClick={() => handleAction(a._id, approveAppointment, "Approved")}>
+                              Approve
                             </Button>
-                            <Button
-                              size="xs"
-                              color="teal"
-                              onClick={() => handleAction(a._id, completeAppointment, "Completed")}
-                            >
-                              Complete
+                          )}
+                          {(a.status === "Pending" || a.status === "Approved") && (
+                            <Button size="xs" color="red" onClick={() => openCancelModal(a)}>
+                              Cancel
                             </Button>
-                          </>
-                        )}
-                      </Group>
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
+                          )}
+                          {(a.status === "Approved" || a.status === "Rescheduled") && (
+                            <>
+                              <Button
+                                size="xs"
+                                variant="outline"
+                                onClick={() => {
+                                  setSelected(a);
+                                  setRescheduleModal(true);
+                                }}
+                              >
+                                Reschedule
+                              </Button>
+
+                              {remaining > 0 ? (
+                                <Button size="xs" color="orange" onClick={() => openCashModal(a)}>
+                                  Add Cash Payment
+                                </Button>
+                              ) : (
+                                <Button size="xs" color="teal" onClick={() => handleComplete(a)}>
+                                  Complete
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </Group>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
               </Table.Tbody>
             </Table>
           </ScrollArea>
@@ -254,7 +317,12 @@ export default function Appointments() {
       </Card>
 
       {/* Reschedule Modal */}
-      <Modal opened={rescheduleModal} onClose={() => setRescheduleModal(false)} title="Reschedule Appointment" centered>
+      <Modal
+        opened={rescheduleModal}
+        onClose={() => setRescheduleModal(false)}
+        title="Reschedule Appointment"
+        centered
+      >
         <DateInput label="New Date" value={newDate} onChange={setNewDate} />
         <TimePicker label="New Start Time" value={newTime} onChange={setNewTime} format="12h" withDropdown />
         <Button mt="sm" onClick={handleReschedule}>
@@ -273,6 +341,27 @@ export default function Appointments() {
         />
         <Button mt="sm" color="red" onClick={handleCancel}>
           Confirm Cancel
+        </Button>
+      </Modal>
+
+      {/* Cash Payment Modal */}
+      <Modal opened={cashModal} onClose={() => setCashModal(false)} title="Add Cash Payment" centered>
+        <Text>Remaining Balance: ₱{selectedForCash ? selectedForCash.serviceId.price - (selectedForCash.payments?.reduce((sum, p) => sum + p.amount, 0) || 0) : 0}</Text>
+        <NumberInput
+          label="Cash Received"
+          value={cashAmount}
+          onChange={setCashAmount}
+          min={1}
+          max={selectedForCash ? selectedForCash.serviceId.price - (selectedForCash.payments?.reduce((sum, p) => sum + p.amount, 0) || 0) : undefined}
+        />
+        <TextInput
+          label="Remarks"
+          placeholder="Optional notes"
+          value={cashRemarks}
+          onChange={(e) => setCashRemarks(e.currentTarget.value)}
+        />
+        <Button mt="sm" onClick={handleCashPayment}>
+          Save Payment
         </Button>
       </Modal>
     </Stack>

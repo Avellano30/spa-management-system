@@ -7,7 +7,8 @@ import {
     Paper,
     Text,
     ScrollArea,
-    Table
+    Table,
+    Select
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { BarChart } from "@mantine/charts";
@@ -28,14 +29,24 @@ interface EarningsRow {
 
 export default function EarningsReport({ appointments }: Props) {
     const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
-
+    const [paymentFilter, setPaymentFilter] = useState<"All" | "Cash" | "Online">("All");
+    const filePrefix =
+        paymentFilter === "All"
+            ? "earnings-all"
+            : paymentFilter === "Cash"
+                ? "earnings-cash"
+                : "earnings-online";
 
     const aggregated = useMemo(() => {
         const acc: Record<string, Record<string, number>> = {};
 
         appointments.forEach((appt) => {
-            // Only include payments with status 'Completed'
-            const paidPayments = (appt.payments ?? []).filter(p => p.status === "Completed");
+            let paidPayments = (appt.payments ?? []).filter(p => p.status === "Completed");
+
+            if (paymentFilter !== "All") {
+                paidPayments = paidPayments.filter(p => p.method === paymentFilter);
+            }
+
             if (!paidPayments.length) return;
 
             const dateKey = dayjs(appt.date).format("YYYY-MM-DD");
@@ -49,7 +60,7 @@ export default function EarningsReport({ appointments }: Props) {
         });
 
         return acc;
-    }, [appointments]);
+    }, [appointments, paymentFilter]);
 
 
     const chartData: EarningsRow[] = useMemo(() => {
@@ -87,13 +98,24 @@ export default function EarningsReport({ appointments }: Props) {
             <Group justify="space-between">
                 <Title order={3}>Service Earnings</Title>
                 <Group>
-                    <Button leftSection={<IconDownload size={16} />} onClick={() => exportCSV("earnings.csv", csvHeaders, csvRows)}>
+                    <Button
+                        leftSection={<IconDownload size={16} />}
+                        onClick={() =>
+                            exportCSV(`${filePrefix}.csv`, csvHeaders, csvRows)
+                        }
+                    >
                         Export CSV
                     </Button>
                     <Button
                         leftSection={<IconDownload size={16} />}
                         onClick={() =>
-                            exportPDF("Service Earnings Report", "earnings.pdf", csvHeaders, csvRows, `Total Earnings: ₱${totalEarnings.toLocaleString()}`)
+                            exportPDF(
+                                `Service Earnings Report (${paymentFilter})`,
+                                `${filePrefix}.pdf`,
+                                csvHeaders,
+                                csvRows,
+                                `Total Earnings: ₱${totalEarnings.toLocaleString()}`
+                            )
                         }
                     >
                         Export PDF
@@ -101,13 +123,27 @@ export default function EarningsReport({ appointments }: Props) {
                 </Group>
             </Group>
 
-            <DatePickerInput
-                type="range"
-                value={dateRange}
-                onChange={setDateRange}
-                label="Filter by date range"
-                allowSingleDateInRange={false}
-            />
+            <Group gap="sm">
+                <DatePickerInput
+                    className="flex-1"
+                    type="range"
+                    value={dateRange}
+                    onChange={setDateRange}
+                    label="Filter by date range"
+                    placeholder="Pick a date range"
+                    allowSingleDateInRange={false}
+                />
+                <Select
+                    label="Payment Method"
+                    value={paymentFilter}
+                    onChange={(v) => setPaymentFilter(v as any)}
+                    data={[
+                        { value: "All", label: "All Payments" },
+                        { value: "Cash", label: "Cash Only" },
+                        { value: "Online", label: "Online Only" },
+                    ]}
+                />
+            </Group>
 
             <Paper withBorder p="md">
                 <Text size="lg" fw={700}>

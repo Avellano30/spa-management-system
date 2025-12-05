@@ -1,6 +1,6 @@
 import { Modal, Table, Badge, Text, Button } from "@mantine/core";
 import { useState } from "react";
-import {IconClipboardText, IconFileSearch} from "@tabler/icons-react";
+import {IconFileSearch} from "@tabler/icons-react";
 
 export const PaymentHistoryModal = ({ payments }: any) => {
     const [opened, setOpened] = useState(false);
@@ -32,6 +32,7 @@ export const PaymentHistoryModal = ({ payments }: any) => {
                             <Table.Th>Type</Table.Th>
                             <Table.Th>Amount</Table.Th>
                             <Table.Th>Status</Table.Th>
+                            <Table.Th>Remarks</Table.Th>
                             <Table.Th>Date</Table.Th>
                         </Table.Tr>
                         </Table.Thead>
@@ -45,6 +46,7 @@ export const PaymentHistoryModal = ({ payments }: any) => {
                                         {p.status === "Completed" ? "PAID" : "PENDING"}
                                     </Badge>
                                 </Table.Td>
+                                <Table.Td>{p.remarks}</Table.Td>
                                 <Table.Td>{new Date(p.createdAt).toLocaleString()}</Table.Td>
                             </Table.Tr>
                         ))}

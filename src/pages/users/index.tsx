@@ -172,13 +172,13 @@ export default function Users() {
                                                 >
                                                     <IconEdit size={16} />
                                                 </ActionIcon>
-                                                <ActionIcon
+                                                {/* <ActionIcon
                                                     variant="light"
                                                     color="red"
                                                     onClick={() => handleDelete(u._id)}
                                                 >
                                                     <IconTrash size={16} />
-                                                </ActionIcon>
+                                                </ActionIcon> */}
                                             </Group>
                                         </Table.Td>
                                     </Table.Tr>
