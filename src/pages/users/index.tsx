@@ -14,7 +14,7 @@ import {
     ActionIcon,
     ScrollArea,
 } from "@mantine/core";
-import { IconEdit, IconTrash, IconRefresh, IconSearch } from "@tabler/icons-react";
+import { IconEdit, IconRefresh, IconSearch } from "@tabler/icons-react";
 
 const endpoint = import.meta.env.VITE_DOMAIN;
 
@@ -56,11 +56,11 @@ export default function Users() {
         fetchClients();
     }, []);
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this user?")) return;
-        await fetch(`${endpoint}/client/record/${id}`, { method: "DELETE" });
-        fetchClients();
-    };
+    // const handleDelete = async (id: string) => {
+    //     if (!confirm("Are you sure you want to delete this user?")) return;
+    //     await fetch(`${endpoint}/client/record/${id}`, { method: "DELETE" });
+    //     fetchClients();
+    // };
 
     const handleUpdate = async () => {
         if (!selected) return;
