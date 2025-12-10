@@ -16,7 +16,7 @@ import {
 } from "@mantine/core";
 import { IconEdit, IconRefresh, IconSearch } from "@tabler/icons-react";
 
-const endpoint = import.meta.env.VITE_DOMAIN;
+const endpoint = import.meta.env.VITE_ENDPOINT;
 
 interface Client {
     _id: string;

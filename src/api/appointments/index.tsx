@@ -1,4 +1,4 @@
-const endpoint = import.meta.env.VITE_API_ENDPOINT || "http://localhost:3000";
+const endpoint = import.meta.env.VITE_ENDPOINT || "http://localhost:3000";
 
 interface Payment {
     amount: number;
