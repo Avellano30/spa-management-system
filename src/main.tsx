@@ -28,7 +28,7 @@ import Settings from './pages/settings/index.tsx';
 import Appointments from './pages/appointments/index.tsx';
 import Users from './pages/users/index.tsx';
 import Reports from './pages/reports/index.tsx';
-import Logs from "./pages/logs";
+import Logs from "./pages/log/index.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
