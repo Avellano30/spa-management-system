@@ -7,7 +7,7 @@ import {
     IconSettings,
     IconLayoutDashboard,
     IconCalendarWeek,
-    IconClipboardData
+    IconClipboardData, IconLogs
 } from '@tabler/icons-react';
 import React from 'react';
 import useHandleLogout from '../modules/auth/handleLogout';
@@ -22,7 +22,8 @@ const navData: NavItem[] = [
     { icon: IconMassage, label: "Services", href: "/services" },
     { icon: IconUsers, label: "Users", href: "/users" },
     { icon: IconClipboardData, label: "Reports", href: "/reports" },
-    { icon: IconSettings, label: "Settings", href: "/settings" },
+    { icon: IconLogs, label: "Logs", href: "/logs" },
+    { icon: IconSettings, label: "Settings", href: "/settings" }
 ];
 
 function Layout({ children }: { children: React.ReactNode }) {
