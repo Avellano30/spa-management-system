@@ -204,7 +204,7 @@ const AdminSettingsPage: React.FC = () => {
                             }))}
                         />
                         <TextInput
-                            label="Description"
+                            label="Home Description"
                             value={homepage.content.description}
                             onChange={(e) => setHomepage(prev => ({
                                 ...prev,
@@ -212,7 +212,7 @@ const AdminSettingsPage: React.FC = () => {
                             }))}
                         />
                         <Textarea
-                            label="Body Description"
+                            label="About Description"
                             value={homepage.content.bodyDescription}
                             onChange={(e) => setHomepage(prev => ({
                                 ...prev,
