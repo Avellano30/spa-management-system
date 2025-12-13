@@ -1,145 +1,258 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Button,
-  NumberInput,
-  TextInput,
-  Group,
-  Paper,
-  Title,
-  Loader,
-  Stack,
-  Divider,
-  Box,
-} from '@mantine/core';
-import { IconSettings2 } from '@tabler/icons-react';
-import { showNotification } from '@mantine/notifications';
+    Tabs,
+    TextInput,
+    Textarea,
+    NumberInput,
+    Button,
+    Group,
+    Paper,
+    Loader,
+    Title,
+    Stack,
+    FileInput,
+} from "@mantine/core";
 import {
-  getSpaSettings,
-  createSpaSettings,
-  updateSpaSettings,
-  type SpaSettings,
-} from '../../api/settings';
+    getHomepageSettings,
+    updateHomepageSettings,
+    createHomepageSettings,
+    type HomepageSettings
+} from "../../api/settings/homepage";
+import { getSpaSettings, updateSpaSettings, createSpaSettings, type SpaSettings } from "../../api/settings";
+import { showNotification } from "@mantine/notifications";
 
-export default function Settings() {
-  const [settings, setSettings] = useState<SpaSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+const AdminSettingsPage: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<string | null>("spa");
 
-  const [totalRooms, setTotalRooms] = useState(1);
-  const [openingTime, setOpeningTime] = useState('09:00');
-  const [closingTime, setClosingTime] = useState('20:00');
+    const [homepage, setHomepage] = useState<HomepageSettings>({
+        brand: { name: "", logoUrl: "" },
+        contact: { email: "", phone: "", address: "" },
+        content: { heading: "", description: "", bodyDescription: "" },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    });
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [loadingHomepage, setLoadingHomepage] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await getSpaSettings();
-        if (data) {
-          setSettings(data);
-          setTotalRooms(data.totalRooms);
-          setOpeningTime(data.openingTime);
-          setClosingTime(data.closingTime);
+    const [spa, setSpa] = useState<SpaSettings | null>(null);
+    const [loadingSpa, setLoadingSpa] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const hp = await getHomepageSettings();
+                console.log(hp);
+                if (hp) {
+                    setHomepage({
+                        brand: { name: hp.brand.name || "", logoUrl: hp.brand.logoUrl || "" },
+                        contact: {
+                            email: hp.contact.email || "",
+                            phone: hp.contact.phone || "",
+                            address: hp.contact.address || "",
+                        },
+                        content: {
+                            heading: hp.content.heading || "",
+                            description: hp.content.description || "",
+                            bodyDescription: hp.content.bodyDescription || "",
+                        },
+                        createdAt: hp.createdAt ? new Date(hp.createdAt) : new Date(),
+                        updatedAt: hp.updatedAt ? new Date(hp.updatedAt) : new Date(),
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to load homepage settings", error);
+            } finally {
+                setLoadingHomepage(false);
+            }
+
+            try {
+                const sp = await getSpaSettings();
+                setSpa(sp);
+            } catch (error) {
+                console.error("Failed to load spa settings", error);
+            } finally {
+                setLoadingSpa(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const saveHomepage = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("brand[name]", homepage.brand.name);
+            formData.append("contact[email]", homepage.contact.email);
+            if (homepage.contact.phone) formData.append("contact[phone]", homepage.contact.phone);
+            if (homepage.contact.address) formData.append("contact[address]", homepage.contact.address);
+            if (homepage.content.heading) formData.append("content[heading]", homepage.content.heading);
+            if (homepage.content.description) formData.append("content[description]", homepage.content.description);
+            if (homepage.content.bodyDescription) formData.append("content[bodyDescription]", homepage.content.bodyDescription);
+
+            if (logoFile) {
+                formData.append("logo", logoFile);
+            }
+
+            let result;
+            if (!homepage.createdAt) {
+                result = await createHomepageSettings(formData);
+            } else {
+                result = await updateHomepageSettings(formData);
+            }
+            setHomepage(result);
+
+            showNotification({
+                title: 'Success',
+                message: 'Homepage settings saved successfully',
+                color: 'green',
+            });
+        } catch (error: unknown) {
+            const e = error as Error;
+            showNotification({
+                title: 'Error',
+                message: e.message || 'Failed to save homepage settings',
+                color: 'red',
+            });
         }
-      } catch (err: any) {
-        showNotification({ color: 'red', title: 'Error', message: err.message });
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    };
 
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      const payload = { totalRooms, openingTime, closingTime };
+    const saveSpa = async () => {
+        if (!spa) return;
+        try {
+            let result;
+            if (!spa.createdAt) {
+                result = await createSpaSettings(spa);
+            } else {
+                result = await updateSpaSettings(spa);
+            }
+            setSpa(result);
 
-      let updated: SpaSettings;
-      if (settings) {
-        updated = await updateSpaSettings(payload);
-        showNotification({ color: 'green', title: 'Updated', message: 'Settings updated' });
-      } else {
-        updated = await createSpaSettings(payload);
-        showNotification({ color: 'green', title: 'Created', message: 'Settings created' });
-      }
+            showNotification({
+                title: 'Success',
+                message: 'Spa settings saved successfully',
+                color: 'green',
+            });
+        } catch (error: unknown) {
+            const e = error as Error;
+            showNotification({
+                title: 'Error',
+                message: e.message || 'Failed to save spa settings',
+                color: 'red',
+            });
+        }
+    };
 
-      setSettings(updated);
-    } catch (err: any) {
-      showNotification({ color: 'red', title: 'Error', message: err.message });
-    } finally {
-      setSaving(false);
-    }
-  };
+    if (loadingHomepage || loadingSpa) return <Loader />;
 
-  if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader color="blue" size="lg" />
-      </div>
-    );
-  }
+        <Stack gap="md" p="md">
+            <Title order={2}>Settings</Title>
 
-  return (
-    <Box className="flex justify-center w-full">
-      <Paper
-        shadow="md"
-        radius="lg"
-        p="xl"
-        className="w-full max-w-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-indigo-100"
-      >
-        <Group mb="lg" align="center">
-          <IconSettings2 size={28} className="text-indigo-600" />
-          <div>
-            <Title order={3} className="text-indigo-900">Spa Configuration</Title>
-            <p className="text-sm text-gray-600 mt-0.5">
-              Manage your spa’s core operational settings
-            </p>
-          </div>
-        </Group>
+            <Tabs value={activeTab} onChange={(val) => setActiveTab(val)}>
+                <Tabs.List>
+                    <Tabs.Tab value="spa">Spa Settings</Tabs.Tab>
+                    <Tabs.Tab value="homepage">Homepage Settings</Tabs.Tab>
+                </Tabs.List>
 
-        <Divider mb="md" />
+                <Tabs.Panel value="homepage" pt="md">
+                    <Paper p="md" shadow="xs">
+                        <TextInput
+                            label="Brand Name"
+                            value={homepage.brand.name}
+                            onChange={(e) => setHomepage(prev => ({
+                                ...prev,
+                                brand: { ...prev.brand, name: e.target.value }
+                            }))}
+                        />
+                        <FileInput
+                            label="Brand Logo"
+                            placeholder="Select logo"
+                            accept="image/*"
+                            value={logoFile}
+                            onChange={setLogoFile}
+                        />
+                        <TextInput
+                            label="Contact Email"
+                            value={homepage.contact.email}
+                            onChange={(e) => setHomepage(prev => ({
+                                ...prev,
+                                contact: { ...prev.contact, email: e.target.value }
+                            }))}
+                        />
+                        <TextInput
+                            label="Contact Phone"
+                            value={homepage.contact.phone}
+                            onChange={(e) => setHomepage(prev => ({
+                                ...prev,
+                                contact: { ...prev.contact, phone: e.target.value }
+                            }))}
+                        />
+                        <TextInput
+                            label="Contact Address"
+                            value={homepage.contact.address}
+                            onChange={(e) => setHomepage(prev => ({
+                                ...prev,
+                                contact: { ...prev.contact, address: e.target.value }
+                            }))}
+                        />
+                        <TextInput
+                            label="Heading"
+                            value={homepage.content.heading}
+                            onChange={(e) => setHomepage(prev => ({
+                                ...prev,
+                                content: { ...prev.content, heading: e.target.value }
+                            }))}
+                        />
+                        <TextInput
+                            label="Description"
+                            value={homepage.content.description}
+                            onChange={(e) => setHomepage(prev => ({
+                                ...prev,
+                                content: { ...prev.content, description: e.target.value }
+                            }))}
+                        />
+                        <Textarea
+                            label="Body Description"
+                            value={homepage.content.bodyDescription}
+                            onChange={(e) => setHomepage(prev => ({
+                                ...prev,
+                                content: { ...prev.content, bodyDescription: e.target.value }
+                            }))}
+                        />
+                        <Group justify="right" mt="md">
+                            <Button onClick={saveHomepage}>Save Homepage Settings</Button>
+                        </Group>
+                    </Paper>
+                </Tabs.Panel>
 
-        <Stack gap="md">
-          <NumberInput
-            label="Total Beds"
-            min={1}
-            value={totalRooms}
-            onChange={(v) => setTotalRooms(Number(v) || 1)}
-            description="Total number of beds available for services"
-            radius="md"
-          />
-
-          <Group grow>
-            <TextInput
-              label="Opening Time"
-              type="time"
-              value={openingTime}
-              onChange={(e) => setOpeningTime(e.currentTarget.value)}
-              radius="md"
-            />
-
-            <TextInput
-              label="Closing Time"
-              type="time"
-              value={closingTime}
-              onChange={(e) => setClosingTime(e.currentTarget.value)}
-              radius="md"
-            />
-          </Group>
+                <Tabs.Panel value="spa" pt="md">
+                    <Paper p="md" shadow="xs">
+                        <NumberInput
+                            label="Total Rooms"
+                            value={spa?.totalRooms || 1}
+                            min={1}
+                            onChange={(value) =>
+                                setSpa(prev => prev ? { ...prev, totalRooms: Number(value) || 1 } : null)
+                            }
+                        />
+                        <TextInput
+                            label="Opening Time"
+                            value={spa?.openingTime || ""}
+                            onChange={(e) => setSpa(prev => prev ? { ...prev, openingTime: e.target.value } : null)}
+                        />
+                        <TextInput
+                            label="Closing Time"
+                            value={spa?.closingTime || ""}
+                            onChange={(e) => setSpa(prev => prev ? { ...prev, closingTime: e.target.value } : null)}
+                        />
+                        <Group justify="right" mt="md">
+                            <Button onClick={saveSpa}>Save Spa Settings</Button>
+                        </Group>
+                    </Paper>
+                </Tabs.Panel>
+            </Tabs>
         </Stack>
+    );
+};
 
-        <Divider my="lg" />
-
-        <Group justify="flex-end">
-          <Button
-            size="md"
-            radius="md"
-            color="indigo"
-            loading={saving}
-            onClick={handleSave}
-          >
-            {settings ? 'Save Changes' : 'Create Settings'}
-          </Button>
-        </Group>
-      </Paper>
-    </Box>
-  );
-}
+export default AdminSettingsPage;
