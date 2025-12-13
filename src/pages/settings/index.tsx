@@ -20,6 +20,7 @@ import {
 } from "../../api/settings/homepage";
 import { getSpaSettings, updateSpaSettings, createSpaSettings, type SpaSettings } from "../../api/settings";
 import { showNotification } from "@mantine/notifications";
+import {TimePicker} from "@mantine/dates";
 
 const AdminSettingsPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string | null>("spa");
@@ -244,15 +245,24 @@ const AdminSettingsPage: React.FC = () => {
                                 setSpa(prev => prev ? { ...prev, downPayment: Number(value) || 1 } : null)
                             }
                         />
-                        <TextInput
+                        <TimePicker
                             label="Opening Time"
                             value={spa?.openingTime || ""}
-                            onChange={(e) => setSpa(prev => prev ? { ...prev, openingTime: e.target.value } : null)}
+                            onChange={(value) =>
+                                setSpa(prev => prev ? { ...prev, openingTime: value || "" } : null)
+                            }
+                            format="12h"
+                            withDropdown
                         />
-                        <TextInput
+
+                        <TimePicker
                             label="Closing Time"
                             value={spa?.closingTime || ""}
-                            onChange={(e) => setSpa(prev => prev ? { ...prev, closingTime: e.target.value } : null)}
+                            onChange={(value) =>
+                                setSpa(prev => prev ? { ...prev, closingTime: value || "" } : null)
+                            }
+                            format="12h"
+                            withDropdown
                         />
                         <Group justify="right" mt="md">
                             <Button onClick={saveSpa}>Save Spa Settings</Button>
