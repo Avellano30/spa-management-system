@@ -235,6 +235,15 @@ const AdminSettingsPage: React.FC = () => {
                                 setSpa(prev => prev ? { ...prev, totalRooms: Number(value) || 1 } : null)
                             }
                         />
+                        <NumberInput
+                            label="Minimum Downpayment (%)"
+                            value={spa?.downPayment || 30}
+                            min={1}
+                            max={100}
+                            onChange={(value) =>
+                                setSpa(prev => prev ? { ...prev, downPayment: Number(value) || 1 } : null)
+                            }
+                        />
                         <TextInput
                             label="Opening Time"
                             value={spa?.openingTime || ""}

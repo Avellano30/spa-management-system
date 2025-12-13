@@ -3,6 +3,7 @@ const endpoint = import.meta.env.VITE_ENDPOINT || 'http://localhost:3000';
 export interface SpaSettings {
   _id?: string;
   totalRooms: number;
+  downPayment: number;
   openingTime: string;
   closingTime: string;
   createdAt?: string;
