@@ -63,3 +63,48 @@ export function exportPDF(
 
   doc.save(filename);
 }
+
+
+/**
+ * printPDF:
+ *  - title: shown at top
+ *  - headers: column headers
+ *  - rows: rows data
+ *  - footer: optional footer line (string)
+ *  - openInNewTab: boolean (default true)
+ */
+export function printPDF(
+    title: string,
+    headers: (string | number)[],
+    rows: (string | number)[][],
+    footer?: string,
+    openInNewTab = true
+): void {
+    const doc = new jsPDF();
+    const now = new Date().toLocaleString();
+
+    doc.setFontSize(14);
+    doc.text(String(title), 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Generated: ${now}`, 14, 28);
+
+    (autoTable as any)(doc, {
+        startY: 34,
+        head: [headers],
+        body: rows,
+        theme: "striped",
+    });
+
+    const finalY = (doc as any).lastAutoTable?.finalY ?? 34 + 10;
+
+    if (footer) {
+        doc.setFontSize(10);
+        doc.text(String(footer), 14, finalY + 8);
+    }
+
+    if (openInNewTab) {
+        window.open(doc.output("bloburl"), "_blank"); // open PDF for printing
+    } else {
+        doc.save(`${title}.pdf`); // fallback download
+    }
+}

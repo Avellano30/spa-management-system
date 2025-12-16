@@ -14,8 +14,8 @@ import { DatePickerInput } from "@mantine/dates";
 import { BarChart } from "@mantine/charts";
 import dayjs from "dayjs";
 import type { Appointment } from "../../api/appointments";
-import { exportCSV, exportPDF } from "./utils/export";
-import { IconDownload } from "@tabler/icons-react";
+import {exportCSV, exportPDF, printPDF} from "./utils/export";
+import {IconDownload, IconPrinter} from "@tabler/icons-react";
 
 interface Props {
     appointments: Appointment[];
@@ -120,29 +120,13 @@ export default function EarningsReport({ appointments }: Props) {
                     >
                         Export PDF
                     </Button>
+                    <Button
+                        leftSection={<IconPrinter size={16} />}
+                        onClick={() => printPDF("Service Earnings Report", csvHeaders, csvRows)}
+                    >
+                        Print PDF
+                    </Button>
                 </Group>
-            </Group>
-
-            <Group gap="sm">
-                <DatePickerInput
-                    className="flex-1"
-                    type="range"
-                    value={dateRange}
-                    onChange={setDateRange}
-                    label="Filter by date range"
-                    placeholder="Pick a date range"
-                    allowSingleDateInRange={false}
-                />
-                <Select
-                    label="Payment Method"
-                    value={paymentFilter}
-                    onChange={(v) => setPaymentFilter(v as any)}
-                    data={[
-                        { value: "All", label: "All Payments" },
-                        { value: "Cash", label: "Cash Only" },
-                        { value: "Online", label: "Online Only" },
-                    ]}
-                />
             </Group>
 
             <Paper withBorder p="md">
@@ -165,6 +149,28 @@ export default function EarningsReport({ appointments }: Props) {
                     }}
                 />
             </Paper>
+
+            <Group gap="sm">
+                <DatePickerInput
+                    className="flex-1"
+                    type="range"
+                    value={dateRange}
+                    onChange={setDateRange}
+                    label="Filter by date range"
+                    placeholder="Pick a date range"
+                    allowSingleDateInRange={false}
+                />
+                <Select
+                    label="Payment Method"
+                    value={paymentFilter}
+                    onChange={(v) => setPaymentFilter(v as any)}
+                    data={[
+                        { value: "All", label: "All Payments" },
+                        { value: "Cash", label: "Cash Only" },
+                        { value: "Online", label: "Online Only" },
+                    ]}
+                />
+            </Group>
 
             <Paper withBorder p="md">
                 <Title order={5}>Breakdown</Title>

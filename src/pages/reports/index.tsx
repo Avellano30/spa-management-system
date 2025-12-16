@@ -4,6 +4,7 @@ import { getAppointments, type Appointment } from "../../api/appointments";
 import EarningsReport from "./earnings";
 import ServicesReport from "./services";
 import CustomersReport from "./customers";
+import AppointmentsReport from "./appointments";
 
 export default function ReportsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -37,8 +38,9 @@ export default function ReportsPage() {
           <Tabs defaultValue="earnings" keepMounted={false}>
             <Tabs.List>
               <Tabs.Tab value="earnings">Earnings</Tabs.Tab>
-              <Tabs.Tab value="services">Most Requested Services</Tabs.Tab>
-              <Tabs.Tab value="customers">Most Frequent Customers</Tabs.Tab>
+                <Tabs.Tab value="appointments">Appointments Status</Tabs.Tab>
+                <Tabs.Tab value="services">Most Requested Services</Tabs.Tab>
+                <Tabs.Tab value="customers">Most Frequent Customers</Tabs.Tab>
             </Tabs.List>
 
             <Tabs.Panel value="earnings" pt="md">
@@ -51,6 +53,10 @@ export default function ReportsPage() {
 
             <Tabs.Panel value="customers" pt="md">
               <CustomersReport appointments={appointments} />
+            </Tabs.Panel>
+
+            <Tabs.Panel value="appointments" pt="md">
+              <AppointmentsReport appointments={appointments} />
             </Tabs.Panel>
           </Tabs>
         )}

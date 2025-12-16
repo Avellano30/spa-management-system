@@ -229,7 +229,7 @@ const AdminSettingsPage: React.FC = () => {
                 <Tabs.Panel value="spa" pt="md">
                     <Paper p="md" shadow="xs">
                         <NumberInput
-                            label="Total Rooms"
+                            label="Total Beds"
                             value={spa?.totalRooms || 1}
                             min={1}
                             onChange={(value) =>

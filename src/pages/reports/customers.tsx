@@ -14,8 +14,8 @@ import {
 } from "@mantine/core";
 import { DonutChart } from "@mantine/charts";
 import type { Appointment } from "../../api/appointments";
-import { exportCSV, exportPDF } from "./utils/export";
-import { IconDownload } from "@tabler/icons-react";
+import {exportCSV, exportPDF, printPDF} from "./utils/export";
+import {IconDownload, IconPrinter} from "@tabler/icons-react";
 
 interface Props {
     appointments: Appointment[];
@@ -76,8 +76,31 @@ export default function CustomersReport({ appointments }: Props) {
                     >
                         Export PDF
                     </Button>
+                    <Button
+                        leftSection={<IconPrinter size={16} />}
+                        onClick={() => printPDF("Most Frequent Customers", headers, rows)}
+                    >
+                        Print PDF
+                    </Button>
                 </Group>
             </Group>
+
+            {topList.length > 0 && (
+                <Paper withBorder p="md">
+                    <Center>
+                        <DonutChart
+                            size={180}
+                            thickness={30}
+                            paddingAngle={5}
+                            data={donutData}
+                            withLabels
+                            labelsType="percent"
+                            tooltipDataSource="segment"
+                            w={1000}
+                        />
+                    </Center>
+                </Paper>
+            )}
 
             <Group align="flex-end" gap="sm">
                 <TextInput
@@ -94,22 +117,6 @@ export default function CustomersReport({ appointments }: Props) {
                     data={["1", "5", "10", "15", "20", "50", "100"]}
                 />
             </Group>
-
-            {topList.length > 0 && (
-                <Paper withBorder p="md">
-                    <Center>
-                        <DonutChart
-                            size={200}
-                            thickness={30}
-                            paddingAngle={5}
-                            data={donutData}
-                            withLabels
-                            labelsType="percent"
-                            tooltipDataSource="segment"
-                        />
-                    </Center>
-                </Paper>
-            )}
 
             <Paper withBorder p="md">
                 {topList.length === 0 ? (
