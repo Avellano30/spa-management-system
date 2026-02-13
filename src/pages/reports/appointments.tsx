@@ -12,10 +12,9 @@ import {
 import { DatePickerInput } from "@mantine/dates";
 import dayjs from "dayjs";
 import type { Appointment } from "../../api/appointments";
-import {exportCSV, exportPDF, printPDF} from "./utils/export";
+import { exportCSV, exportPDF, printPDF } from "./utils/export";
 import { IconDownload, IconPrinter } from "@tabler/icons-react";
-import {DonutChart} from "@mantine/charts";
-
+import { DonutChart } from "@mantine/charts";
 
 interface Props {
     appointments: Appointment[];
@@ -26,6 +25,12 @@ export default function AppointmentsReport({ appointments }: Props) {
     const [clientFilter, setClientFilter] = useState<string | null>(null);
     const [serviceFilter, setServiceFilter] = useState<string | null>(null);
     const [statusFilter, setStatusFilter] = useState<string | null>(null);
+
+    // Helper to safely get client name
+    const getClientName = (appt: Appointment) =>
+        appt.clientId
+            ? `${appt.clientId.firstname} ${appt.clientId.lastname}`
+            : "Deleted Client";
 
     const filteredAppointments = useMemo(() => {
         return appointments.filter((appt) => {
@@ -38,7 +43,7 @@ export default function AppointmentsReport({ appointments }: Props) {
                 if (!apptDate.isAfter(s.subtract(1, "second")) || !apptDate.isBefore(e.add(1, "second"))) return false;
             }
 
-            if (clientFilter && `${appt.clientId.firstname} ${appt.clientId.lastname}` !== clientFilter) return false;
+            if (clientFilter && getClientName(appt) !== clientFilter) return false;
             if (serviceFilter && appt.serviceId?.name !== serviceFilter) return false;
             if (statusFilter && appt.status !== statusFilter) return false;
 
@@ -56,7 +61,7 @@ export default function AppointmentsReport({ appointments }: Props) {
     ];
 
     const csvRows = filteredAppointments.map((appt) => [
-        `${appt.clientId.firstname} ${appt.clientId.lastname}`,
+        getClientName(appt),
         appt.serviceId?.name ?? "Service (deleted)",
         dayjs(appt.date).format("YYYY-MM-DD"),
         `${appt.startTime} - ${appt.endTime}`,
@@ -64,7 +69,7 @@ export default function AppointmentsReport({ appointments }: Props) {
         appt.status
     ]);
 
-    const clientOptions = Array.from(new Set(appointments.map((a) => `${a.clientId.firstname} ${a.clientId.lastname}`)))
+    const clientOptions = Array.from(new Set(appointments.map(getClientName)))
         .map((name) => ({ value: name, label: name }));
 
     const serviceOptions = Array.from(new Set(appointments.map((a) => a.serviceId?.name ?? "Service (deleted)")))
@@ -184,7 +189,7 @@ export default function AppointmentsReport({ appointments }: Props) {
                         <Table.Tbody>
                             {filteredAppointments.map((appt) => (
                                 <Table.Tr key={appt._id}>
-                                    <Table.Td>{`${appt.clientId.firstname} ${appt.clientId.lastname}`}</Table.Td>
+                                    <Table.Td>{getClientName(appt)}</Table.Td>
                                     <Table.Td>{appt.serviceId?.name ?? "Service (deleted)"}</Table.Td>
                                     <Table.Td>{dayjs(appt.date).format("YYYY-MM-DD")}</Table.Td>
                                     <Table.Td>{`${appt.startTime} - ${appt.endTime}`}</Table.Td>
