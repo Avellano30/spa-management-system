@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Card, Grid, Stack, Text, Title } from "@mantine/core";
+import { Card, Container, Grid, Stack, Text, Title } from "@mantine/core";
 import { useNavigate } from "react-router";
 import { showNotification } from "@mantine/notifications";
-import { getAppointmentStats } from "./api/appointments";
+import { getAppointmentStats, getAppointments } from "./api/appointments";
+import BookingCalendar from "./components/BookingCalendar";
 
 const statusColors: Record<string, string> = {
   Pending: "yellow",
@@ -50,7 +51,7 @@ export default function App() {
   return (
     <Stack p="md">
       <Title order={2}>Appointment Overview</Title>
-      
+
       <Grid>
         {Object.entries(stats).map(([status, count]) => (
           <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 2 }} key={status}>
@@ -73,6 +74,10 @@ export default function App() {
           </Grid.Col>
         ))}
       </Grid>
+
+      <Container size="xl" mt="lg">
+        <BookingCalendar />
+      </Container>
     </Stack>
   );
 }
