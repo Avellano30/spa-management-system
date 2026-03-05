@@ -2,14 +2,23 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Card, Center, Loader, Title } from "@mantine/core";
+import { Card, Center, Loader, Modal, Title, Text } from "@mantine/core";
 import { getAppointments } from "../api/appointments";
 import { showNotification } from "@mantine/notifications";
 import { useEffect, useState } from "react";
+import type { EventApi } from "@fullcalendar/core";
 
 export default function BookingCalendar() {
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const [opened, setOpened] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventApi | null>(null);
+
+  const handleEventClick = (info: any) => {
+    setSelectedEvent(info.event);
+    setOpened(true);
+  };
 
   useEffect(() => {
     load();
@@ -19,14 +28,21 @@ export default function BookingCalendar() {
     try {
       const data = await getAppointments({ status: "Approved" });
 
-      console.log(data);
-
-      const formatted = data.map((item) => ({
-        id: item._id,
-        title: `${item.status}`,
-        start: item.startTime,
-        end: item.endTime,
-      }));
+      const formatted = data.map((item) => {
+        const [date] = item.date.split("T");
+        return {
+          title: `${item.serviceId.category}`,
+          start: `${date}T${item.startTime}:00`,
+          end: `${date}T${item.endTime}:00`,
+          extendedProps: {
+            customer: `${item.clientId.firstname} ${item.clientId.lastname}`,
+            service: `${item.serviceId.category}`,
+            phone: `${item.clientId.phone}`,
+            email: `${item.clientId.email}`,
+            employee: `${item.employee}`,
+          },
+        };
+      });
 
       setBookings(formatted);
     } catch (err: any) {
@@ -59,10 +75,32 @@ export default function BookingCalendar() {
           right: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
         events={bookings}
+        eventClick={handleEventClick}
         height="80vh"
         editable={false}
         selectable={true}
       />
+
+      <Modal
+        opened={opened}
+        onClose={() => setOpened(false)}
+        title="Appointment Details"
+      >
+        {selectedEvent && (
+          <>
+            <Text fw={600}>Service: {selectedEvent.title}</Text>
+            <br />
+            <Text>Start: {selectedEvent.start?.toLocaleString()}</Text>
+            <Text>End: {selectedEvent.end?.toLocaleString()}</Text>
+            <br />
+            <Text>Client: {selectedEvent.extendedProps.customer}</Text>
+            <Text>Contact: {selectedEvent.extendedProps.phone}</Text>
+            <Text>Email: {selectedEvent.extendedProps.email}</Text>
+            <br />
+            <Text>Therapist: {selectedEvent.extendedProps.employee}</Text>
+          </>
+        )}
+      </Modal>
     </Card>
   );
 }

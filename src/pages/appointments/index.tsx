@@ -13,7 +13,6 @@ import {
   Card,
   Loader,
   Text,
-  Flex,
   NumberInput,
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
@@ -35,7 +34,11 @@ const formatTime = (time: string) => {
   const [hours, minutes] = time.split(":");
   const date = new Date();
   date.setHours(Number(hours), Number(minutes));
-  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
+  return date.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 };
 
 export default function Appointments() {
@@ -51,12 +54,15 @@ export default function Appointments() {
 
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelNotes, setCancelNotes] = useState("");
-  const [selectedForCancel, setSelectedForCancel] = useState<Appointment | null>(null);
+  const [selectedForCancel, setSelectedForCancel] =
+    useState<Appointment | null>(null);
 
   const [cashModal, setCashModal] = useState(false);
   const [cashAmount, setCashAmount] = useState<string | number>(0);
   const [cashRemarks, setCashRemarks] = useState("");
-  const [selectedForCash, setSelectedForCash] = useState<Appointment | null>(null);
+  const [selectedForCash, setSelectedForCash] = useState<Appointment | null>(
+    null,
+  );
 
   const [searchParams] = useSearchParams();
   const paramStatusFilter = searchParams.get("status");
@@ -66,7 +72,9 @@ export default function Appointments() {
   const load = async () => {
     try {
       setLoading(true);
-      const data = await getAppointments(paramStatusFilter ? { status: paramStatusFilter } : undefined);
+      const data = await getAppointments(
+        paramStatusFilter ? { status: paramStatusFilter } : undefined,
+      );
       setAppointments(data);
     } catch (err: any) {
       showNotification({ color: "red", title: "Error", message: err.message });
@@ -82,23 +90,32 @@ export default function Appointments() {
   // Apply filters automatically
   useEffect(() => {
     let temp = [...appointments];
-    if (statusFilter !== "All") temp = temp.filter((a) => a.status === statusFilter);
+    if (statusFilter !== "All")
+      temp = temp.filter((a) => a.status === statusFilter);
     if (search.trim()) {
       const s = search.toLowerCase();
       temp = temp.filter(
         (a) =>
           (a.clientId?.firstname?.toLowerCase() || "").includes(s) ||
           (a.clientId?.lastname?.toLowerCase() || "").includes(s) ||
-          (a.serviceId?.name?.toLowerCase() || "").includes(s)
+          (a.serviceId?.name?.toLowerCase() || "").includes(s),
       );
     }
     setFiltered(temp);
   }, [statusFilter, search, appointments]);
 
-  const handleAction = async (id: string, action: Function, successMsg: string) => {
+  const handleAction = async (
+    id: string,
+    action: Function,
+    successMsg: string,
+  ) => {
     try {
       await action(id);
-      showNotification({ color: "green", title: "Success", message: successMsg });
+      showNotification({
+        color: "green",
+        title: "Success",
+        message: successMsg,
+      });
       load();
     } catch (err: any) {
       showNotification({ color: "red", title: "Error", message: err.message });
@@ -109,7 +126,11 @@ export default function Appointments() {
     if (!selected || !newDate || !newTime) return;
     try {
       await rescheduleAppointment(selected._id, newDate, newTime);
-      showNotification({ color: "green", title: "Rescheduled", message: "Appointment moved." });
+      showNotification({
+        color: "green",
+        title: "Rescheduled",
+        message: "Appointment moved.",
+      });
       setRescheduleModal(false);
       load();
     } catch (err: any) {
@@ -126,13 +147,21 @@ export default function Appointments() {
   const handleCancel = async () => {
     if (!selectedForCancel) return;
     if (!cancelNotes.trim()) {
-      showNotification({ color: "red", title: "Error", message: "Please provide cancellation notes." });
+      showNotification({
+        color: "red",
+        title: "Error",
+        message: "Please provide cancellation notes.",
+      });
       return;
     }
 
     try {
       await cancelAppointment(selectedForCancel._id, cancelNotes);
-      showNotification({ color: "green", title: "Success", message: "Appointment cancelled." });
+      showNotification({
+        color: "green",
+        title: "Success",
+        message: "Appointment cancelled.",
+      });
       setCancelModal(false);
       setCancelNotes("");
       setSelectedForCancel(null);
@@ -156,8 +185,17 @@ export default function Appointments() {
     if (!selectedForCash || !cashAmount || Number(cashAmount) <= 0) return;
 
     try {
-      await createCashPayment(selectedForCash._id, "Balance", Number(cashAmount), cashRemarks);
-      showNotification({ color: "green", title: "Success", message: "Cash payment recorded." });
+      await createCashPayment(
+        selectedForCash._id,
+        "Balance",
+        Number(cashAmount),
+        cashRemarks,
+      );
+      showNotification({
+        color: "green",
+        title: "Success",
+        message: "Cash payment recorded.",
+      });
       setCashModal(false);
       setCashAmount(0);
       setCashRemarks("");
@@ -170,7 +208,8 @@ export default function Appointments() {
 
   const handleComplete = async (appt: Appointment) => {
     try {
-      const totalPaid = appt.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+      const totalPaid =
+        appt.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
       const remaining = appt.serviceId.price - totalPaid;
 
       if (remaining > 0) {
@@ -209,10 +248,21 @@ export default function Appointments() {
             placeholder="Filter by status"
             value={statusFilter}
             onChange={(v) => setStatusFilter(v || "All")}
-            data={["All", "Pending", "Approved", "Completed", "Cancelled", "Rescheduled"]}
+            data={[
+              "All",
+              "Pending",
+              "Approved",
+              "Completed",
+              "Cancelled",
+              "Rescheduled",
+            ]}
             style={{ width: 180 }}
           />
-          <Button leftSection={<IconRefresh size={16} />} variant="light" onClick={load}>
+          <Button
+            leftSection={<IconRefresh size={16} />}
+            variant="light"
+            onClick={load}
+          >
             Refresh
           </Button>
         </Group>
@@ -235,7 +285,7 @@ export default function Appointments() {
                   <Table.Th>Client</Table.Th>
                   <Table.Th>Service</Table.Th>
                   <Table.Th>Booking Date</Table.Th>
-                  <Table.Th>Time</Table.Th>
+                  <Table.Th>Therapist</Table.Th>
                   <Table.Th>Notes</Table.Th>
                   <Table.Th>Status</Table.Th>
                   <Table.Th>Payment Method</Table.Th>
@@ -245,43 +295,68 @@ export default function Appointments() {
               </Table.Thead>
               <Table.Tbody>
                 {filtered.map((a) => {
-                  const totalPaid = a.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+                  const totalPaid =
+                    a.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
                   const remaining = a.serviceId?.price - totalPaid;
                   return (
                     <Table.Tr key={a._id}>
                       <Table.Td>
-                        {a.clientId?.firstname ? `${a.clientId.firstname} ${a.clientId.lastname}` : "Deleted Client"}
+                        {a.clientId?.firstname
+                          ? `${a.clientId.firstname} ${a.clientId.lastname}`
+                          : "Deleted Client"}
                       </Table.Td>
-                      <Table.Td>{a.serviceId ? a.serviceId.name : "Service no longer exists."}</Table.Td>
-                      <Table.Td>{new Date(a.date).toLocaleDateString()}</Table.Td>
                       <Table.Td>
-                        <Flex>
-                          <span>{formatTime(a.startTime)}</span>
-                          <span>&nbsp;-&nbsp;</span>
-                          <span>{formatTime(a.endTime)}</span>
-                        </Flex>
+                        {a.serviceId
+                          ? a.serviceId.name
+                          : "Service no longer exists."}
                       </Table.Td>
+                      <Table.Td>
+                        {new Date(a.date).toLocaleDateString()}
+                        <br />
+                        <div>
+                          <span>{formatTime(a.startTime)}</span>-
+                          <span>{formatTime(a.endTime)}</span>
+                        </div>
+                      </Table.Td>
+                      <Table.Td>{a.employee}</Table.Td>
                       <Table.Td>{a.notes || "-"}</Table.Td>
                       <Table.Td>
                         <Badge color={statusColor(a.status)}>{a.status}</Badge>
                       </Table.Td>
-                      <Table.Td>{a.payments?.length ? a.payments[0]?.method : "Cash"}</Table.Td>
+                      <Table.Td>
+                        {a.payments?.length ? a.payments[0]?.method : "Cash"}
+                      </Table.Td>
                       <Table.Td>
                         <PaymentHistoryModal payments={a.payments} />
                       </Table.Td>
                       <Table.Td>
                         <Group gap="xs">
                           {a.status === "Pending" && (
-                            <Button size="xs" onClick={() => handleAction(a._id, approveAppointment, "Approved")}>
+                            <Button
+                              size="xs"
+                              onClick={() =>
+                                handleAction(
+                                  a._id,
+                                  approveAppointment,
+                                  "Approved",
+                                )
+                              }
+                            >
                               Approve
                             </Button>
                           )}
-                          {(a.status === "Pending" || a.status === "Approved") && (
-                            <Button size="xs" color="red" onClick={() => openCancelModal(a)}>
+                          {(a.status === "Pending" ||
+                            a.status === "Approved") && (
+                            <Button
+                              size="xs"
+                              color="red"
+                              onClick={() => openCancelModal(a)}
+                            >
                               Cancel
                             </Button>
                           )}
-                          {(a.status === "Approved" || a.status === "Rescheduled") && (
+                          {(a.status === "Approved" ||
+                            a.status === "Rescheduled") && (
                             <>
                               <Button
                                 size="xs"
@@ -295,11 +370,19 @@ export default function Appointments() {
                               </Button>
 
                               {remaining > 0 ? (
-                                <Button size="xs" color="orange" onClick={() => openCashModal(a)}>
+                                <Button
+                                  size="xs"
+                                  color="orange"
+                                  onClick={() => openCashModal(a)}
+                                >
                                   Add Cash Payment
                                 </Button>
                               ) : (
-                                <Button size="xs" color="teal" onClick={() => handleComplete(a)}>
+                                <Button
+                                  size="xs"
+                                  color="teal"
+                                  onClick={() => handleComplete(a)}
+                                >
                                   Complete
                                 </Button>
                               )}
@@ -324,14 +407,25 @@ export default function Appointments() {
         centered
       >
         <DateInput label="New Date" value={newDate} onChange={setNewDate} />
-        <TimePicker label="New Start Time" value={newTime} onChange={setNewTime} format="12h" withDropdown />
+        <TimePicker
+          label="New Start Time"
+          value={newTime}
+          onChange={setNewTime}
+          format="12h"
+          withDropdown
+        />
         <Button mt="sm" onClick={handleReschedule}>
           Save Changes
         </Button>
       </Modal>
 
       {/* Cancel Modal */}
-      <Modal opened={cancelModal} onClose={() => setCancelModal(false)} title="Cancel Appointment" centered>
+      <Modal
+        opened={cancelModal}
+        onClose={() => setCancelModal(false)}
+        title="Cancel Appointment"
+        centered
+      >
         <TextInput
           label="Cancellation Notes"
           placeholder="Reason for cancellation..."
@@ -345,14 +439,36 @@ export default function Appointments() {
       </Modal>
 
       {/* Cash Payment Modal */}
-      <Modal opened={cashModal} onClose={() => setCashModal(false)} title="Add Cash Payment" centered>
-        <Text>Remaining Balance: ₱{selectedForCash ? selectedForCash.serviceId.price - (selectedForCash.payments?.reduce((sum, p) => sum + p.amount, 0) || 0) : 0}</Text>
+      <Modal
+        opened={cashModal}
+        onClose={() => setCashModal(false)}
+        title="Add Cash Payment"
+        centered
+      >
+        <Text>
+          Remaining Balance: ₱
+          {selectedForCash
+            ? selectedForCash.serviceId.price -
+              (selectedForCash.payments?.reduce(
+                (sum, p) => sum + p.amount,
+                0,
+              ) || 0)
+            : 0}
+        </Text>
         <NumberInput
           label="Cash Received"
           value={cashAmount}
           onChange={setCashAmount}
           min={1}
-          max={selectedForCash ? selectedForCash.serviceId.price - (selectedForCash.payments?.reduce((sum, p) => sum + p.amount, 0) || 0) : undefined}
+          max={
+            selectedForCash
+              ? selectedForCash.serviceId.price -
+                (selectedForCash.payments?.reduce(
+                  (sum, p) => sum + p.amount,
+                  0,
+                ) || 0)
+              : undefined
+          }
         />
         <TextInput
           label="Remarks"

@@ -34,6 +34,7 @@ import Appointments from "./pages/appointments/index.tsx";
 import Users from "./pages/users/index.tsx";
 import Reports from "./pages/reports/index.tsx";
 import Logs from "./pages/logs.tsx";
+import Employees from "./pages/employees/index.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -44,6 +45,7 @@ const router = createBrowserRouter(
         <Route path="/appointments" element={<Appointments />} />
         <Route path="/services" element={<Services />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/employees" element={<Employees />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/logs" element={<Logs />} />

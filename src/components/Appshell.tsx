@@ -31,6 +31,7 @@ const navData: NavItem[] = [
   { icon: IconCalendarWeek, label: "Appointments", href: "/appointments" },
   { icon: IconMassage, label: "Services", href: "/services" },
   { icon: IconUsers, label: "Users", href: "/users" },
+  { icon: IconUsers, label: "Employees", href: "/employees" },
   { icon: IconClipboardData, label: "Reports", href: "/reports" },
   { icon: IconLogs, label: "Logs", href: "/logs" },
   { icon: IconSettings, label: "Settings", href: "/settings" },
@@ -51,7 +52,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     />
   ));
 
-  const theme = useMantineTheme();
+  const theme: any = useMantineTheme();
 
   return (
     <AppShell
@@ -59,12 +60,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
     >
-      <AppShell.Header
-        sx={(t) => ({
-          backgroundColor:
-            t.colorScheme === "dark" ? t.colors.dark[7] : t.colors.gray[0],
-        })}
-      >
+      <AppShell.Header>
         <Group h="100%" px="md" style={{ width: "100%", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <Burger
@@ -74,14 +70,8 @@ function Layout({ children }: { children: React.ReactNode }) {
               size="sm"
               color={theme.colorScheme === "dark" ? "white" : "black"}
             />
-            <span
-              style={{
-                marginLeft: 8,
-                fontWeight: 500,
-                color: theme.colorScheme === "dark" ? "#fff" : "#111",
-              }}
-            >
-              Spa Management System
+            <span>
+              <strong>Spa Management System</strong>
             </span>
           </div>
           <div style={{ marginLeft: "auto" }}>
