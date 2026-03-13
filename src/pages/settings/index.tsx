@@ -29,13 +29,13 @@ import { showNotification } from "@mantine/notifications";
 import { TimePicker } from "@mantine/dates";
 
 import {
-  createCategory,
+  //createCategory,
   deleteCategory,
   getAllCategories,
 } from "../../api/categories";
 
 import {
-  createIntensity,
+  //createIntensity,
   deleteIntensity,
   getAllIntensities,
 } from "../../api/intensity";
@@ -98,7 +98,11 @@ const AdminSettingsPage: React.FC = () => {
 
       try {
         const data = await getAllCategories();
-        setCategories(data);
+        const formatted = data.map((c) => ({
+          _id: c._id,
+          name: Array.isArray(c.name) ? c.name[0] : c.name,
+        }));
+        setCategories(formatted);
       } catch (err) {
         console.error("Failed to load categories");
       } finally {
@@ -107,7 +111,11 @@ const AdminSettingsPage: React.FC = () => {
 
       try {
         const data = await getAllIntensities();
-        setIntensities(data);
+        const formatted = data.map((c) => ({
+          _id: c._id,
+          name: Array.isArray(c.name) ? c.name[0] : c.name,
+        }));
+        setIntensities(formatted);
       } catch (err) {
         console.error("Failed to load intensities");
       } finally {
@@ -193,16 +201,22 @@ const AdminSettingsPage: React.FC = () => {
   const addCategory = async () => {
     if (!newCategory) return;
 
-    const created = await createCategory({ name: newCategory });
+    //     const created = await createCategory({ name: newCategory });
 
-    setCategories([...categories, created]);
-    setNewCategory("");
+    //     // ensure `name` is a string
+    //     const normalized: Category = {
+    //       _id: created._id,
+    //       name: Array.isArray(created.name) ? created.name[0] : created.name,
+    //     };
 
-    showNotification({
-      title: "Success",
-      message: "Category added",
-      color: "green",
-    });
+    //     setCategories([...categories, normalized]);
+    //     setNewCategory("");
+
+    //     showNotification({
+    //       title: "Success",
+    //       message: "Category added",
+    //       color: "green",
+    //     });
   };
 
   const removeCategory = async (id: string) => {
@@ -216,7 +230,7 @@ const AdminSettingsPage: React.FC = () => {
   }
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [newCategory, setNewCategory] = useState("");
+  const [newCategory, setNewCategory] = useState<string>("");
   const [loadingCategories, setLoadingCategories] = useState(true);
 
   // INTENSITY HANDLERS (same as categories, can be refactored later)
@@ -224,16 +238,21 @@ const AdminSettingsPage: React.FC = () => {
   const addIntensity = async () => {
     if (!newIntensity) return;
 
-    const created = await createIntensity({ name: newIntensity });
+    //     const created = await createIntensity({ name: newIntensity });
 
-    setIntensities([...intensities, created]);
-    setNewIntensity("");
+    //     const normalized: Intensity = {
+    //       _id: created._id,
+    //       name: Array.isArray(created.name) ? created.name[0] : created.name,
+    //     };
 
-    showNotification({
-      title: "Success",
-      message: "Intensity added",
-      color: "green",
-    });
+    //     setIntensities([...intensities, normalized]);
+    //     setNewIntensity("");
+
+    //     showNotification({
+    //       title: "Success",
+    //       message: "Intensity added",
+    //       color: "green",
+    //     });
   };
 
   const removeIntensity = async (id: string) => {
@@ -252,7 +271,7 @@ const AdminSettingsPage: React.FC = () => {
   }
 
   const [intensities, setIntensities] = useState<Intensity[]>([]);
-  const [newIntensity, setNewIntensity] = useState("");
+  const [newIntensity, setNewIntensity] = useState<string>("");
   const [loadingIntensities, setLoadingIntensities] = useState(true);
 
   if (loadingHomepage || loadingSpa) return <Loader />;
