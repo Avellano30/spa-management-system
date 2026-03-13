@@ -1,3 +1,5 @@
+import { refundAppointment } from "../payments";
+
 const endpoint = import.meta.env.VITE_ENDPOINT || "http://localhost:3000";
 
 interface Payment {
@@ -66,7 +68,41 @@ export async function cancelAppointment(id: string, notes: string) {
   });
   if (!res.ok)
     throw new Error((await res.json()).message || "Failed to cancel");
-  return res.json();
+  const response = await res.json();
+  // Process refund via PayMongo if there are completed payments
+  if (
+    response.appointment.payments &&
+    response.appointment.payments.some((p: Payment) => p.status === "Completed")
+  ) {
+    try {
+      const payments: Payment[] = response.appointment.payments || [];
+
+      // Get completed payments
+      const completedPayments = payments.filter(
+        (p) => p.status === "Completed",
+      );
+
+      // Sum total payments
+      const total_payments = completedPayments.reduce(
+        (sum, p) => sum + p.amount,
+        0,
+      );
+
+      // Process refund
+      if (total_payments > 0) {
+        try {
+          await refundAppointment(id, total_payments, notes);
+        } catch (error) {
+          console.error("Failed to process refund:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to process refund:", error);
+      // Note: We don't throw here to avoid failing the cancellation
+    }
+  }
+
+  return response.appointment;
 }
 
 export async function completeAppointment(id: string) {

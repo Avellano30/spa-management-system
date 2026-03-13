@@ -31,6 +31,7 @@ import {
   type NewEmployee,
 } from "../../api/employees";
 import EmployeeForm from "../../components/EmployeeForm";
+import { Badge } from "@mantine/core";
 
 export default function Employees() {
   const [services, setServices] = useState<Employee[]>([]);
@@ -163,6 +164,7 @@ export default function Employees() {
                   <Table.Th>Image</Table.Th>
                   <Table.Th>Name</Table.Th>
                   <Table.Th>Status</Table.Th>
+                  <Table.Th>Schedule</Table.Th>
                   <Table.Th style={{ textAlign: "center" }}>Actions</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -194,6 +196,15 @@ export default function Employees() {
                       >
                         {s.status}
                       </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={6}>
+                        {s.schedule?.map((day) => (
+                          <Badge key={day} variant="light" color="blue">
+                            {day.charAt(0).toUpperCase() + day.slice(1)}
+                          </Badge>
+                        ))}
+                      </Group>
                     </Table.Td>
                     <Table.Td style={{ textAlign: "center" }}>
                       <Flex gap="xs" justify="center">

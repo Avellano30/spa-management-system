@@ -6,11 +6,13 @@ export interface Employee {
   imageUrl: string;
   imagePublicId: string;
   status: "available" | "unavailable";
+  schedule: string[]; // e.g. ["monday", "tuesday"]
 }
 
 export interface NewEmployee {
   name: string;
   status: string;
+  schedule: string[];
   image?: File | null;
 }
 
@@ -23,7 +25,13 @@ export async function getAllEmployees(): Promise<Employee[]> {
 export async function createEmployee(service: NewEmployee): Promise<Employee> {
   const formData = new FormData();
   Object.entries(service).forEach(([key, val]) => {
-    if (val !== undefined && val !== null) formData.append(key, val as any);
+    if (val !== undefined && val !== null) {
+      if (key === "schedule") {
+        formData.append(key, JSON.stringify(val));
+      } else {
+        formData.append(key, val as any);
+      }
+    }
   });
 
   const res = await fetch(`${endpoint}/employees`, {
@@ -40,7 +48,14 @@ export async function updateEmployee(
 ): Promise<Employee> {
   const formData = new FormData();
   Object.entries(service).forEach(([key, val]) => {
-    if (val !== undefined && val !== null) formData.append(key, val as any);
+    if (val !== undefined && val !== null) {
+      formData.append(key, val as any);
+      //  if (key === "schedule") {
+      //    formData.append(key, JSON.stringify(val));
+      //  } else {
+      //    formData.append(key, val as any);
+      //  }
+    }
   });
 
   const res = await fetch(`${endpoint}/employees/${id}`, {
