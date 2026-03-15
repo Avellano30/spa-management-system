@@ -31,8 +31,14 @@ export default function ServiceForm({
     description: initial.description || "",
     price: initial.price || 0,
     duration: initial.duration || 0,
-    category: Array.isArray(initial.category) ? initial.category : [],
-    intensity: Array.isArray(initial.intensity) ? initial.intensity : [],
+    category:
+      typeof (initial as any).category === "string"
+        ? (initial as any).category.split(",")
+        : (initial as any).category || [],
+    intensity:
+      typeof (initial.intensity as any) === "string"
+        ? (initial.intensity as any).split(",")
+        : initial.intensity || [],
     image: undefined,
   });
 

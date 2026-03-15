@@ -29,13 +29,13 @@ import { showNotification } from "@mantine/notifications";
 import { TimePicker } from "@mantine/dates";
 
 import {
-  //createCategory,
+  createCategory,
   deleteCategory,
   getAllCategories,
 } from "../../api/categories";
 
 import {
-  //createIntensity,
+  createIntensity,
   deleteIntensity,
   getAllIntensities,
 } from "../../api/intensity";
@@ -201,22 +201,22 @@ const AdminSettingsPage: React.FC = () => {
   const addCategory = async () => {
     if (!newCategory) return;
 
-    //     const created = await createCategory({ name: newCategory });
+    const created = await createCategory({ name: newCategory });
 
-    //     // ensure `name` is a string
-    //     const normalized: Category = {
-    //       _id: created._id,
-    //       name: Array.isArray(created.name) ? created.name[0] : created.name,
-    //     };
+    // ensure `name` is a string
+    const normalized: Category = {
+      _id: created._id,
+      name: Array.isArray(created.name) ? created.name[0] : created.name,
+    };
 
-    //     setCategories([...categories, normalized]);
-    //     setNewCategory("");
+    setCategories([...categories, normalized]);
+    setNewCategory("");
 
-    //     showNotification({
-    //       title: "Success",
-    //       message: "Category added",
-    //       color: "green",
-    //     });
+    showNotification({
+      title: "Success",
+      message: "Category added",
+      color: "green",
+    });
   };
 
   const removeCategory = async (id: string) => {
@@ -238,21 +238,21 @@ const AdminSettingsPage: React.FC = () => {
   const addIntensity = async () => {
     if (!newIntensity) return;
 
-    //     const created = await createIntensity({ name: newIntensity });
+    const created = await createIntensity({ name: [newIntensity] });
 
-    //     const normalized: Intensity = {
-    //       _id: created._id,
-    //       name: Array.isArray(created.name) ? created.name[0] : created.name,
-    //     };
+    const normalized: Intensity = {
+      _id: created._id,
+      name: Array.isArray(created.name) ? created.name[0] : created.name,
+    };
 
-    //     setIntensities([...intensities, normalized]);
-    //     setNewIntensity("");
+    setIntensities([...intensities, normalized]);
+    setNewIntensity("");
 
-    //     showNotification({
-    //       title: "Success",
-    //       message: "Intensity added",
-    //       color: "green",
-    //     });
+    showNotification({
+      title: "Success",
+      message: "Intensity added",
+      color: "green",
+    });
   };
 
   const removeIntensity = async (id: string) => {

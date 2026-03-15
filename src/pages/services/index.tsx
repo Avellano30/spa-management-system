@@ -1,8 +1,28 @@
-import { useEffect, useState } from 'react';
-import { Button, Card, Flex, Group, Image, Loader, Modal, ScrollArea, Stack, Table, Text, TextInput, Title } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconPencil, IconTrash, IconRefresh, IconSearch } from '@tabler/icons-react';
-import { showNotification } from '@mantine/notifications';
+import { useEffect, useState } from "react";
+import {
+  Badge,
+  Button,
+  Card,
+  Flex,
+  Group,
+  Image,
+  Loader,
+  Modal,
+  ScrollArea,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import {
+  IconPencil,
+  IconTrash,
+  IconRefresh,
+  IconSearch,
+} from "@tabler/icons-react";
+import { showNotification } from "@mantine/notifications";
 import {
   getAllServices,
   createService,
@@ -10,20 +30,22 @@ import {
   deleteService,
   type Service,
   type NewService,
-} from '../../api/services';
-import ServiceSwitch from '../../components/ServiceSwitch';
-import ServiceForm from '../../components/ServiceForm';
+} from "../../api/services";
+import ServiceSwitch from "../../components/ServiceSwitch";
+import ServiceForm from "../../components/ServiceForm";
 
 export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
   const [selected, setSelected] = useState<Service | null>(null);
   const [toDelete, setToDelete] = useState<Service | null>(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false);
-  const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
-  const [delOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
+  const [editOpened, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
+  const [delOpened, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
 
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -34,7 +56,7 @@ export default function Services() {
       const data = await getAllServices();
       setServices(data);
     } catch (err: any) {
-      showNotification({ color: 'red', title: 'Error', message: err.message });
+      showNotification({ color: "red", title: "Error", message: err.message });
     } finally {
       setLoading(false);
     }
@@ -49,10 +71,14 @@ export default function Services() {
       setAdding(true);
       await createService(data);
       await fetchServices();
-      showNotification({ color: 'green', title: 'Success', message: 'Service added' });
+      showNotification({
+        color: "green",
+        title: "Success",
+        message: "Service added",
+      });
       closeAdd();
     } catch (err: any) {
-      showNotification({ color: 'red', title: 'Error', message: err.message });
+      showNotification({ color: "red", title: "Error", message: err.message });
     } finally {
       setAdding(false);
     }
@@ -63,12 +89,18 @@ export default function Services() {
     try {
       setEditing(true);
       const updated = await updateService(selected._id, data);
-      setServices((prev) => prev.map((s) => (s._id === updated._id ? updated : s)));
-      showNotification({ color: 'green', title: 'Updated', message: 'Service updated' });
+      setServices((prev) =>
+        prev.map((s) => (s._id === updated._id ? updated : s)),
+      );
+      showNotification({
+        color: "green",
+        title: "Updated",
+        message: "Service updated",
+      });
       closeEdit();
       setSelected(null);
     } catch (err: any) {
-      showNotification({ color: 'red', title: 'Error', message: err.message });
+      showNotification({ color: "red", title: "Error", message: err.message });
     } finally {
       setEditing(false);
     }
@@ -79,16 +111,21 @@ export default function Services() {
     try {
       await deleteService(toDelete._id);
       setServices((prev) => prev.filter((s) => s._id !== toDelete._id));
-      showNotification({ color: 'green', title: 'Deleted', message: 'Service removed' });
+      showNotification({
+        color: "green",
+        title: "Deleted",
+        message: "Service removed",
+      });
       closeDelete();
     } catch (err: any) {
-      showNotification({ color: 'red', title: 'Error', message: err.message });
+      showNotification({ color: "red", title: "Error", message: err.message });
     }
   };
 
-  const filtered = services.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.description.toLowerCase().includes(search.toLowerCase())
+  const filtered = services.filter(
+    (s) =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -134,7 +171,7 @@ export default function Services() {
                   <Table.Th>Price</Table.Th>
                   <Table.Th>Category</Table.Th>
                   <Table.Th>Image</Table.Th>
-                  <Table.Th style={{ textAlign: 'center' }}>Actions</Table.Th>
+                  <Table.Th style={{ textAlign: "center" }}>Actions</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -144,7 +181,11 @@ export default function Services() {
                       <ServiceSwitch
                         service={s}
                         onStatusChange={(updated) =>
-                          setServices((prev) => prev.map((srv) => (srv._id === updated._id ? updated : srv)))
+                          setServices((prev) =>
+                            prev.map((srv) =>
+                              srv._id === updated._id ? updated : srv,
+                            ),
+                          )
                         }
                       />
                     </Table.Td>
@@ -152,7 +193,17 @@ export default function Services() {
                     <Table.Td>{s.description}</Table.Td>
                     <Table.Td>{s.duration} min</Table.Td>
                     <Table.Td>₱{s.price}</Table.Td>
-                    <Table.Td>{s.category}</Table.Td>
+                    <Table.Td>
+                      <Group gap="xs">
+                        {(s as any).category
+                          .split(",")
+                          .map((cat: string, index: number) => (
+                            <Badge key={index} variant="light">
+                              {cat.trim()}
+                            </Badge>
+                          ))}
+                      </Group>
+                    </Table.Td>
                     <Table.Td>
                       <div className="">
                         <Image
@@ -164,12 +215,27 @@ export default function Services() {
                         />
                       </div>
                     </Table.Td>
-                    <Table.Td style={{ textAlign: 'center' }}>
+                    <Table.Td style={{ textAlign: "center" }}>
                       <Flex gap="xs" justify="center">
-                        <Button size="xs" variant="light" onClick={() => { setSelected(s); openEdit(); }}>
+                        <Button
+                          size="xs"
+                          variant="light"
+                          onClick={() => {
+                            setSelected(s);
+                            openEdit();
+                          }}
+                        >
                           <IconPencil size={16} />
                         </Button>
-                        <Button size="xs" color="red" variant="light" onClick={() => { setToDelete(s); openDelete(); }}>
+                        <Button
+                          size="xs"
+                          color="red"
+                          variant="light"
+                          onClick={() => {
+                            setToDelete(s);
+                            openDelete();
+                          }}
+                        >
                           <IconTrash size={16} />
                         </Button>
                       </Flex>
@@ -182,14 +248,22 @@ export default function Services() {
         )}
       </Card>
 
-
       {/* Add Modal */}
       <Modal opened={addOpened} onClose={closeAdd} title="Add Service" centered>
-        <ServiceForm onSubmit={handleAdd} submitLabel="Add Service" loading={adding} />
+        <ServiceForm
+          onSubmit={handleAdd}
+          submitLabel="Add Service"
+          loading={adding}
+        />
       </Modal>
 
       {/* Edit Modal */}
-      <Modal opened={editOpened} onClose={closeEdit} title="Edit Service" centered>
+      <Modal
+        opened={editOpened}
+        onClose={closeEdit}
+        title="Edit Service"
+        centered
+      >
         {selected && (
           <ServiceForm
             initial={selected}
@@ -201,11 +275,22 @@ export default function Services() {
       </Modal>
 
       {/* Delete Modal */}
-      <Modal opened={delOpened} onClose={closeDelete} title="Confirm Delete" centered>
-        <p>Are you sure you want to delete <strong>{toDelete?.name}</strong>?</p>
+      <Modal
+        opened={delOpened}
+        onClose={closeDelete}
+        title="Confirm Delete"
+        centered
+      >
+        <p>
+          Are you sure you want to delete <strong>{toDelete?.name}</strong>?
+        </p>
         <div className="flex justify-center mt-4 gap-3">
-          <Button color="red" onClick={handleDelete}>Delete</Button>
-          <Button variant="outline" onClick={closeDelete}>Cancel</Button>
+          <Button color="red" onClick={handleDelete}>
+            Delete
+          </Button>
+          <Button variant="outline" onClick={closeDelete}>
+            Cancel
+          </Button>
         </div>
       </Modal>
     </Stack>

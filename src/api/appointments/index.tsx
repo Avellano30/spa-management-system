@@ -13,6 +13,20 @@ interface Payment {
   updatedAt: Date;
 }
 
+export interface Service {
+  category: any;
+  _id: string;
+  name: string;
+  price: number;
+  duration: number;
+}
+
+export interface EmployeeRef {
+  _id: string;
+  name: string;
+  [key: string]: any;
+}
+
 export interface Appointment {
   _id: string;
   clientId: {
@@ -22,20 +36,18 @@ export interface Appointment {
     email: string;
     phone: string;
   };
-  serviceId: {
-    category: any;
-    _id: string;
-    name: string;
-    price: number;
-    duration: number;
-  };
+  services: {
+    serviceId: string;
+    intensity?: string;
+    service: Service & { price: number };
+  }[];
   date: string;
   startTime: string;
   endTime: string;
   status: "Pending" | "Approved" | "Cancelled" | "Rescheduled" | "Completed";
   notes?: string;
   payments?: Payment[];
-  employee?: string;
+  employee?: string | EmployeeRef;
 }
 
 export async function getAppointments(params?: {

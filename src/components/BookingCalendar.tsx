@@ -30,16 +30,32 @@ export default function BookingCalendar() {
 
       const formatted = data.map((item) => {
         const [date] = item.date.split("T");
+        // Compose a string of all service names (or categories) for the title
+        const serviceNames =
+          item.services && item.services.length > 0
+            ? item.services
+                .map((s) => s.service?.name || "Service deleted")
+                .join(", ")
+            : "No service";
+        const serviceCategories =
+          item.services && item.services.length > 0
+            ? item.services.map((s) => s.service?.category || "").join(", ")
+            : "";
         return {
-          title: `${item.serviceId.category}`,
+          title: serviceNames,
           start: `${date}T${item.startTime}:00`,
           end: `${date}T${item.endTime}:00`,
           extendedProps: {
             customer: `${item.clientId.firstname} ${item.clientId.lastname}`,
-            service: `${item.serviceId.category}`,
+            service: serviceCategories,
             phone: `${item.clientId.phone}`,
             email: `${item.clientId.email}`,
-            employee: `${item.employee}`,
+            employee:
+              typeof item.employee === "object" &&
+              item.employee &&
+              "name" in item.employee
+                ? item.employee.name
+                : item.employee || "-",
           },
         };
       });

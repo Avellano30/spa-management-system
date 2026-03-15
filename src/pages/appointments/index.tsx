@@ -98,7 +98,10 @@ export default function Appointments() {
         (a) =>
           (a.clientId?.firstname?.toLowerCase() || "").includes(s) ||
           (a.clientId?.lastname?.toLowerCase() || "").includes(s) ||
-          (a.serviceId?.name?.toLowerCase() || "").includes(s),
+          a.services?.some((srv) =>
+            srv.service?.name?.toLowerCase().includes(s),
+          ) ||
+          false,
       );
     }
     setFiltered(temp);
@@ -175,7 +178,9 @@ export default function Appointments() {
   const openCashModal = (appt: Appointment) => {
     setSelectedForCash(appt);
     const totalPaid = appt.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
-    const remaining = appt.serviceId.price - totalPaid;
+    const totalServicePrice =
+      appt.services?.reduce((sum, s) => sum + (s.service?.price || 0), 0) || 0;
+    const remaining = totalServicePrice - totalPaid;
     setCashAmount(remaining);
     setCashRemarks("");
     setCashModal(true);
@@ -210,13 +215,16 @@ export default function Appointments() {
     try {
       const totalPaid =
         appt.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
-      const remaining = appt.serviceId.price - totalPaid;
+      const totalServicePrice =
+        appt.services?.reduce((sum, s) => sum + (s.service?.price || 0), 0) ||
+        0;
+      const remaining = totalServicePrice - totalPaid;
 
       if (remaining > 0) {
         showNotification({
           color: "red",
           title: "Cannot Complete",
-          message: `Appointment has an unpaid balance of ₱${remaining}.`,
+          message: "Appointment has an unpaid balance of ₱${remaining}.",
         });
         return;
       }
@@ -297,7 +305,13 @@ export default function Appointments() {
                 {filtered.map((a) => {
                   const totalPaid =
                     a.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
-                  const remaining = a.serviceId?.price - totalPaid;
+                  // Sum all service prices for remaining calculation
+                  const totalServicePrice =
+                    a.services?.reduce(
+                      (sum, s) => sum + (s.service?.price || 0),
+                      0,
+                    ) || 0;
+                  const remaining = totalServicePrice - totalPaid;
                   return (
                     <Table.Tr key={a._id}>
                       <Table.Td>
@@ -306,9 +320,36 @@ export default function Appointments() {
                           : "Deleted Client"}
                       </Table.Td>
                       <Table.Td>
-                        {a.serviceId
-                          ? a.serviceId.name
-                          : "Service no longer exists."}
+                        {a.services && a.services.length > 0 ? (
+                          <ul style={{ margin: 0, paddingLeft: 16 }}>
+                            {a.services.map((s, idx) => (
+                              <li key={s.serviceId || idx}>
+                                <strong>
+                                  {s.service?.name || "Service deleted"}
+                                </strong>
+
+                                {s.intensity && (
+                                  <span
+                                    style={{
+                                      marginLeft: 4,
+                                      fontStyle: "italic",
+                                      color: "#888",
+                                    }}
+                                  >
+                                    ({s.intensity})
+                                  </span>
+                                )}
+                                {typeof s.service?.price === "number" && (
+                                  <span style={{ marginLeft: 8 }}>
+                                    ₱{s.service.price.toLocaleString()}
+                                  </span>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span>Service(s) not found.</span>
+                        )}
                       </Table.Td>
                       <Table.Td>
                         {new Date(a.date).toLocaleDateString()}
@@ -318,7 +359,13 @@ export default function Appointments() {
                           <span>{formatTime(a.endTime)}</span>
                         </div>
                       </Table.Td>
-                      <Table.Td>{a.employee}</Table.Td>
+                      <Table.Td>
+                        {a.employee &&
+                        typeof a.employee === "object" &&
+                        "name" in a.employee
+                          ? a.employee.name
+                          : a.employee || "-"}
+                      </Table.Td>
                       <Table.Td>{a.notes || "-"}</Table.Td>
                       <Table.Td>
                         <Badge color={statusColor(a.status)}>{a.status}</Badge>
@@ -448,7 +495,10 @@ export default function Appointments() {
         <Text>
           Remaining Balance: ₱
           {selectedForCash
-            ? selectedForCash.serviceId.price -
+            ? (selectedForCash.services?.reduce(
+                (sum, s) => sum + (s.service?.price || 0),
+                0,
+              ) || 0) -
               (selectedForCash.payments?.reduce(
                 (sum, p) => sum + p.amount,
                 0,
@@ -462,7 +512,10 @@ export default function Appointments() {
           min={1}
           max={
             selectedForCash
-              ? selectedForCash.serviceId.price -
+              ? (selectedForCash.services?.reduce(
+                  (sum, s) => sum + (s.service?.price || 0),
+                  0,
+                ) || 0) -
                 (selectedForCash.payments?.reduce(
                   (sum, p) => sum + p.amount,
                   0,

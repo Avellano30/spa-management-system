@@ -2,11 +2,11 @@ const endpoint = import.meta.env.VITE_ENDPOINT || "http://localhost:3000";
 
 export interface Category {
   _id: string;
-  name: string[];
+  name: string | string[];
 }
 
 export interface NewCategory {
-  name: string[];
+  name: string | string[];
 }
 
 export async function getAllCategories(): Promise<Category[]> {
