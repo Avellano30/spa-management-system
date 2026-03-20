@@ -26,11 +26,11 @@ export async function createEmployee(service: NewEmployee): Promise<Employee> {
   const formData = new FormData();
   Object.entries(service).forEach(([key, val]) => {
     if (val !== undefined && val !== null) {
-      if (key === "schedule") {
-        formData.append(key, JSON.stringify(val));
-      } else {
-        formData.append(key, val as any);
-      }
+        if (key === "schedule" && Array.isArray(val)) {
+            val.forEach((day: string) => formData.append("schedule[]", day));
+        } else {
+            formData.append(key, val as any);
+        }
     }
   });
 
@@ -47,16 +47,15 @@ export async function updateEmployee(
   service: Partial<NewEmployee>,
 ): Promise<Employee> {
   const formData = new FormData();
-  Object.entries(service).forEach(([key, val]) => {
-    if (val !== undefined && val !== null) {
-      formData.append(key, val as any);
-      //  if (key === "schedule") {
-      //    formData.append(key, JSON.stringify(val));
-      //  } else {
-      //    formData.append(key, val as any);
-      //  }
-    }
-  });
+    Object.entries(service).forEach(([key, val]) => {
+        if (val !== undefined && val !== null) {
+            if (key === "schedule" && Array.isArray(val)) {
+                val.forEach((day: string) => formData.append("schedule[]", day));
+            } else {
+                formData.append(key, val as any);
+            }
+        }
+    });
 
   const res = await fetch(`${endpoint}/employees/${id}`, {
     method: "PATCH",

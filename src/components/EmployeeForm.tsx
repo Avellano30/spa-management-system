@@ -96,22 +96,22 @@ export default function ServiceForm({
                   ? "#e7f5ff"
                   : undefined,
               }}
-              onClick={() => {
-                if (schedule.includes(day.value)) {
-                  handleChange(
-                    "schedule",
-                    schedule.filter((d) => d !== day.value),
-                  );
-                } else {
-                  handleChange("schedule", [...schedule, day.value]);
-                }
-              }}
+              // onClick={() => {
+              //   if (schedule.includes(day.value)) {
+              //     handleChange(
+              //       "schedule",
+              //       schedule.filter((d) => d !== day.value),
+              //     );
+              //   } else {
+              //     handleChange("schedule", [...schedule, day.value]);
+              //   }
+              // }}
             >
               <Checkbox
                 value={day.value}
                 label={day.label}
                 checked={schedule.includes(day.value)}
-                readOnly
+                // readOnly
               />
             </Card>
           ))}
