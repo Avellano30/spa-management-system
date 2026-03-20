@@ -26,7 +26,12 @@ export default function BookingCalendar() {
 
   const load = async () => {
     try {
-      const data = await getAppointments({ status: "Approved" });
+        const [approved, rescheduled] = await Promise.all([
+            getAppointments({ status: "Approved" }),
+            getAppointments({ status: "Rescheduled" }),
+        ]);
+
+        const data = [...approved, ...rescheduled];
 
       const formatted = data.map((item) => {
         const [date] = item.date.split("T");
@@ -45,6 +50,7 @@ export default function BookingCalendar() {
           title: serviceNames,
           start: `${date}T${item.startTime}:00`,
           end: `${date}T${item.endTime}:00`,
+            color: item.status === "Rescheduled" ? "orange" : undefined,
           extendedProps: {
             customer: `${item.clientId.firstname} ${item.clientId.lastname}`,
             service: serviceCategories,
