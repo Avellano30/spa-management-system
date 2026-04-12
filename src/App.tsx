@@ -11,7 +11,7 @@ const statusColors: Record<string, string> = {
   Completed: "green",
   Cancelled: "red",
   Rescheduled: "orange",
-    Refunded:"gray",
+
 };
 
 // default counts for all statuses
@@ -21,7 +21,7 @@ const defaultStats: Record<string, number> = {
   Completed: 0,
   Cancelled: 0,
   Rescheduled: 0,
-    Refunded: 0,
+
 };
 
 export default function App() {
