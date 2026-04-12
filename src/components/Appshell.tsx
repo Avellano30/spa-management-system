@@ -5,6 +5,7 @@ import {
   ScrollArea,
   NavLink,
   Divider,
+    Text,
   useMantineTheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -42,15 +43,24 @@ function Layout({ children }: { children: React.ReactNode }) {
   const { handleLogout } = useHandleLogout();
   const location = useLocation();
   const datetime = RealTimeClock();
-  const items = navData.map((item) => (
-    <NavLink
-      href={item.href}
-      key={item.label}
-      active={location.pathname.startsWith(item.href)}
-      label={item.label}
-      leftSection={<item.icon size={16} stroke={1.5} />}
-    />
-  ));
+    const items = navData.map((item) => (
+        <NavLink
+            href={item.href}
+            key={item.label}
+            active={location.pathname.startsWith(item.href)}
+            label={item.label}
+            // Standardizing icon size and stroke to match client feel
+            leftSection={<item.icon size={20} stroke={2} />}
+            styles={{
+                label: {
+                    fontSize: '16px', // Standard UI font size
+                    fontWeight: 600,  // Medium weight for better readability
+                    paddingTop: '4px',
+                    paddingBottom: '4px',
+                },
+            }}
+        />
+    ));
 
   const theme: any = useMantineTheme();
 
@@ -61,7 +71,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md" style={{ width: "100%", alignItems: "center" }}>
+        <Group h="100%" px="sm" style={{ width: "100%", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <Burger
               opened={opened}
@@ -70,9 +80,9 @@ function Layout({ children }: { children: React.ReactNode }) {
               size="sm"
               color={theme.colorScheme === "dark" ? "white" : "black"}
             />
-            <span>
-              <strong>Spa Management System</strong>
-            </span>
+              <span style={{ fontSize: '18px', letterSpacing: '-0.5px' }}>
+                <strong>Spa Management System Admin</strong>
+              </span>
           </div>
           <div style={{ marginLeft: "auto" }}>
             <ThemeToggle />
@@ -80,22 +90,39 @@ function Layout({ children }: { children: React.ReactNode }) {
         </Group>
       </AppShell.Header>
       <AppShell.Navbar>
-        <AppShell.Section mt="md" mx="md">
-          {datetime}
-        </AppShell.Section>
+          <AppShell.Section mt="md" mx="md">
+              <Text
+                  size="lg"
+                  fw={600}
+                  c="dimmed"
+                  style={{
+                      letterSpacing: '0.5px',
+                      textTransform: 'uppercase', // Makes it look like a pro dashboard clock
+                      fontSize: '13px'
+                  }}
+              >
+                  {datetime}
+              </Text>
+          </AppShell.Section>
         <Divider mt="md" mx="md" />
         <AppShell.Section grow my="md" component={ScrollArea} px="md">
           {items}
         </AppShell.Section>
         <Divider mx="md" />
-        <AppShell.Section p="md">
-          <NavLink
-            href="/"
-            label="Sign out"
-            leftSection={<IconLogout size={16} stroke={1.5} />}
-            onClick={handleLogout}
-          />
-        </AppShell.Section>
+          <AppShell.Section p="md">
+              <NavLink
+                  href="/"
+                  label="Sign out"
+                  leftSection={<IconLogout size={20} stroke={2} />} // Increased size to 20
+                  onClick={handleLogout}
+                  styles={{
+                      label: {
+                          fontSize: '16px', // Matches your other NavLinks
+                          fontWeight: 600,  // Matches your other NavLinks
+                      },
+                  }}
+              />
+          </AppShell.Section>
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>

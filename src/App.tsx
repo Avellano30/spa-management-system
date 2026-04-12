@@ -11,6 +11,7 @@ const statusColors: Record<string, string> = {
   Completed: "green",
   Cancelled: "red",
   Rescheduled: "orange",
+    Refunded:"gray",
 };
 
 // default counts for all statuses
@@ -20,6 +21,7 @@ const defaultStats: Record<string, number> = {
   Completed: 0,
   Cancelled: 0,
   Rescheduled: 0,
+    Refunded: 0,
 };
 
 export default function App() {
@@ -54,23 +56,29 @@ export default function App() {
 
       <Grid>
         {Object.entries(stats).map(([status, count]) => (
-          <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 2 }} key={status}>
-            <Card
-              shadow="sm"
-              padding="lg"
-              radius="md"
-              withBorder
-              onClick={() => handleNavigate(status)}
-              style={{
-                cursor: "pointer",
-                borderColor: `var(--mantine-color-${statusColors[status]}-6)`,
-              }}
-            >
-              <Text fw={600} c={statusColors[status]}>
-                {status}
-              </Text>
-              <Title order={3}>{count}</Title>
-            </Card>
+          <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 4 }} key={status}>
+              <Card
+                  shadow="md"
+                  padding="lg"
+                  radius="lg"
+                  withBorder
+                  onClick={() => handleNavigate(status)}
+                  // Use the status color for the background
+                  bg={`${statusColors[status]}.6`}
+                  style={{
+                      cursor: "pointer",
+                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  }}
+                  // Added a small hover effect since they are clickable
+                  className="hover:scale-105 active:scale-95"
+              >
+                  <Text fw={800} c="white" size="md" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      {status}
+                  </Text>
+                  <Title order={1} c="white">
+                      {count}
+                  </Title>
+              </Card>
           </Grid.Col>
         ))}
       </Grid>
