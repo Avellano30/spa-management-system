@@ -2,19 +2,23 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Card, Center, Loader, Modal, Title, Text } from "@mantine/core";
+import { Card, Center, Loader, Modal, Title, Text,SegmentedControl,Group } from "@mantine/core";
 import { getAppointments } from "../api/appointments";
 import { showNotification } from "@mantine/notifications";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import type { EventApi } from "@fullcalendar/core";
 
 export default function BookingCalendar() {
   const [bookings, setBookings] = useState({});
   const [loading, setLoading] = useState(true);
-
+    const calendarRef = useRef<FullCalendar>(null);
   const [opened, setOpened] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventApi | null>(null);
-
+    const [view, setView] = useState("dayGridMonth");
+    const handleViewChange = (newView: string) => {
+        setView(newView);
+        calendarRef.current?.getApi().changeView(newView);
+    };
   const handleEventClick = (info: any) => {
     setSelectedEvent(info.event);
     setOpened(true);
@@ -83,25 +87,38 @@ export default function BookingCalendar() {
   }
 
   return (
-    <Card shadow="sm" padding="lg" radius="md">
-      <Title order={3} mb="md">
-        Calendar
-      </Title>
+      <Card shadow="sm" padding="lg" radius="md">
+          {/* 1. This Group puts the Title and Toggle on the same line */}
+          <Group justify="space-between" mb="md">
+              <Title order={3}>Calendar Overview</Title>
 
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
-        }}
-        events={bookings}
-        eventClick={handleEventClick}
-        height="80vh"
-        editable={false}
-        selectable={true}
-      />
+              <SegmentedControl
+                  value={view}
+                  onChange={handleViewChange}
+                  data={[
+                      { label: "Month", value: "dayGridMonth" },
+                      { label: "Week", value: "timeGridWeek" },
+                      { label: "Day", value: "timeGridDay" },
+                  ]}
+                  radius="md"
+              />
+          </Group>
+
+          <FullCalendar
+              ref={calendarRef}
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              headerToolbar={{
+                  left: "prev,next today",
+                  center: "title",
+                  right: "", // 2. We leave this EMPTY to remove the old buttons
+              }}
+              events={bookings}
+              eventClick={handleEventClick}
+              height="80vh"
+              editable={false}
+              selectable={true}
+          />
 
       <Modal
         opened={opened}

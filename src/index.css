@@ -1,27 +1,115 @@
 @import "tailwindcss";
 
 :root {
-  --app-bg: #ffffff;
-  --app-text: #0f172a;
-  --app-muted: #6b7280;
+    --app-bg: #ffffff;
+    --app-text: #0f172a;
+    --app-muted: #6b7280;
+    --fc-border: rgba(0, 0, 0, 0.06);
 }
 
 .dark {
-  --app-bg: #0b1220;
-  --app-text: #e6eef8;
-  --app-muted: #9ca3af;
+    --app-bg: #0b1220;
+    --app-text: #e6eef8;
+    --app-muted: #9ca3af;
+    --fc-border: rgba(255, 255, 255, 0.1);
 }
 
 html,
 body,
 #root {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  background-color: var(--app-bg);
-  color: var(--app-text);
-  transition:
-    background-color 150ms ease,
-    color 150ms ease;
+    background-color: var(--app-bg);
+    color: var(--app-text);
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+/* --- Modern FullCalendar Customization --- */
+.fc {
+    --fc-border-color: var(--fc-border);
+    --fc-today-bg-color: rgba(34, 139, 230, 0.05);
+    --fc-page-bg-color: var(--app-bg);
+
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+/* Fix for Popovers/Modals overlap */
+.fc-popover {
+    z-index: 9999 !important;
+    background-color: var(--app-bg) !important;
+    border: 1px solid var(--fc-border) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Remove the "Excel" boxy look */
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-scrollgrid {
+    border: 1px solid var(--fc-border) !important;
+}
+
+.fc-scrollgrid {
+    border-radius: 8px;
+    overflow: hidden;
+    border: none !important;
+}
+
+/* Column Headers (Mon, Tue, etc.) */
+.fc .fc-col-header-cell {
+    background-color: rgba(0, 0, 0, 0.02);
+    padding: 12px 0 !important;
+}
+
+.dark .fc .fc-col-header-cell {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Day Numbers */
+.fc .fc-daygrid-day-number {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 10px !important;
+    color: var(--app-muted);
+    text-decoration: none !important;
+}
+
+/* Event "Pills" styling */
+.fc-event {
+    border: none !important;
+    margin: 2px 4px !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: transform 0.1s ease, filter 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.fc-event:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.9);
+}
+
+/* Toolbar Buttons Cleanup (for the ones we didn't replace) */
+.fc .fc-button-primary {
+    background-color: transparent !important;
+    border: 1px solid var(--fc-border) !important;
+    color: var(--app-text) !important;
+    text-transform: capitalize !important;
+    font-weight: 500 !important;
+    font-size: 0.8rem !important;
+}
+
+.fc .fc-button-primary:hover {
+    background-color: var(--fc-today-bg-color) !important;
+}
+
+.fc .fc-button-active {
+    background-color: #228be6 !important; /* Mantine Blue */
+    color: white !important;
+    border-color: #228be6 !important;
 }

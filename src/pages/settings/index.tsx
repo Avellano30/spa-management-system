@@ -26,7 +26,6 @@ import {
   type SpaSettings,
 } from "../../api/settings";
 import { showNotification } from "@mantine/notifications";
-import { TimePicker } from "@mantine/dates";
 
 import {
   createCategory,
@@ -396,29 +395,30 @@ const AdminSettingsPage: React.FC = () => {
                 )
               }
             />
-            <TimePicker
-              label="Opening Time"
-              value={spa?.openingTime || ""}
-              onChange={(value) =>
-                setSpa((prev) =>
-                  prev ? { ...prev, openingTime: value || "" } : null,
-                )
-              }
-              format="12h"
-              withDropdown
-            />
+              <Group grow>
+                  <TextInput
+                      label="Opening Time"
+                      type="time" // This is the magic part
+                      value={spa?.openingTime || ""}
+                      onChange={(e) =>
+                          setSpa((prev) =>
+                              prev ? { ...prev, openingTime: e.target.value } : null
+                          )
+                      }
+                  />
 
-            <TimePicker
-              label="Closing Time"
-              value={spa?.closingTime || ""}
-              onChange={(value) =>
-                setSpa((prev) =>
-                  prev ? { ...prev, closingTime: value || "" } : null,
-                )
-              }
-              format="12h"
-              withDropdown
-            />
+                  <TextInput
+                      label="Closing Time"
+                      type="time" // This is the magic part
+                      step="60"
+                      value={spa?.closingTime || ""}
+                      onChange={(e) =>
+                          setSpa((prev) =>
+                              prev ? { ...prev, closingTime: e.target.value } : null
+                          )
+                      }
+                  />
+              </Group>
             <Group justify="right" mt="md">
               <Button onClick={saveSpa}>Save Spa Settings</Button>
             </Group>
