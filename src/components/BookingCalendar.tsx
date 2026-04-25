@@ -28,55 +28,64 @@ export default function BookingCalendar() {
     load();
   }, []);
 
-  const load = async () => {
-    try {
-        const [approved, rescheduled] = await Promise.all([
-            getAppointments({ status: "Approved" }),
-            getAppointments({ status: "Rescheduled" }),
-        ]);
+    const load = async () => {
+        try {
+            const [approved, rescheduled, pending] = await Promise.all([
+                getAppointments({ status: "Approved" }),
+                getAppointments({ status: "Rescheduled" }),
+                getAppointments({ status: "Pending" }),
+            ]);
 
-        const data = [...approved, ...rescheduled];
+            const data = [...approved, ...rescheduled, ...pending];
 
-      const formatted = data.map((item) => {
-        const [date] = item.date.split("T");
-        // Compose a string of all service names (or categories) for the title
-        const serviceNames =
-          item.services && item.services.length > 0
-            ? item.services
-                .map((s) => s.service?.name || "Service deleted")
-                .join(", ")
-            : "No service";
-        const serviceCategories =
-          item.services && item.services.length > 0
-            ? item.services.map((s) => s.service?.category || "").join(", ")
-            : "";
-        return {
-          title: serviceNames,
-          start: `${date}T${item.startTime}:00`,
-          end: `${date}T${item.endTime}:00`,
-            color: item.status === "Rescheduled" ? "orange" : undefined,
-          extendedProps: {
-            customer: `${item.clientId.firstname} ${item.clientId.lastname}`,
-            service: serviceCategories,
-            phone: `${item.clientId.phone}`,
-            email: `${item.clientId.email}`,
-            employee:
-              typeof item.employee === "object" &&
-              item.employee &&
-              "name" in item.employee
-                ? item.employee.name
-                : item.employee || "-",
-          },
-        };
-      });
+            const formatted = data.map((item) => {
+                const [date] = item.date.split("T");
 
-      setBookings(formatted);
-    } catch (err: any) {
-      showNotification({ color: "red", title: "Error", message: err.message });
-    } finally {
-      setLoading(false);
-    }
-  };
+                // 1. Get Service Names
+                const serviceNames =
+                    item.services && item.services.length > 0
+                        ? item.services
+                            .map((s) => s.service?.name || "Service deleted")
+                            .join(", ")
+                        : "No service";
+
+                // 2. Get Service Categories (Fixed: Added the logic back)
+                const serviceCategories =
+                    item.services && item.services.length > 0
+                        ? item.services.map((s) => s.service?.category || "").join(", ")
+                        : "";
+
+                return {
+                    title: serviceNames,
+                    start: `${date}T${item.startTime}:00`,
+                    end: `${date}T${item.endTime}:00`,
+                    allDay: false,
+                    color: item.status === "Rescheduled"
+                        ? "orange"
+                        : item.status === "Pending"
+                            ? "#fab005"
+                            : undefined,
+                    extendedProps: {
+                        customer: `${item.clientId?.firstname || 'Unknown'} ${item.clientId?.lastname || ''}`,
+                        service: serviceCategories,
+                        phone: `${item.clientId?.phone || 'N/A'}`,
+                        email: `${item.clientId?.email || 'N/A'}`,
+                        status: item.status,
+                        employee:
+                            item.employee && typeof item.employee === "object" && "name" in item.employee
+                                ? item.employee.name
+                                : item.employee || "-",
+                    },
+                };
+            });
+
+            setBookings(formatted);
+        } catch (err: any) {
+            showNotification({ color: "red", title: "Error", message: err.message });
+        } finally {
+            setLoading(false);
+        }
+    };
 
   if (loading) {
     return (
@@ -108,16 +117,27 @@ export default function BookingCalendar() {
               ref={calendarRef}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
+              locale="en-us"
               headerToolbar={{
                   left: "prev,next today",
                   center: "title",
-                  right: "", // 2. We leave this EMPTY to remove the old buttons
+                  right: "",
               }}
               events={bookings}
               eventClick={handleEventClick}
               height="80vh"
               editable={false}
               selectable={true}
+              eventDisplay="block"
+              displayEventTime={true}
+              eventTimeFormat={(info) => {
+                  const date = info.date;
+                  const hour = date.hour % 12 || 12;
+                  const minute = date.minute.toString().padStart(2, '0');
+                  const ampm = date.hour >= 12 ? 'pm' : 'am';
+
+                  return `${hour}:${minute}${ampm}`;
+              }}
           />
 
       <Modal

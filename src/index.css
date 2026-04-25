@@ -14,11 +14,7 @@
     --fc-border: rgba(255, 255, 255, 0.1);
 }
 
-html,
-body,
-#root {
-    height: 100%;
-}
+html, body, #root { height: 100%; }
 
 body {
     background-color: var(--app-bg);
@@ -31,85 +27,106 @@ body {
     --fc-border-color: var(--fc-border);
     --fc-today-bg-color: rgba(34, 139, 230, 0.05);
     --fc-page-bg-color: var(--app-bg);
-
     font-family: inherit;
     font-size: 0.9rem;
 }
 
-/* Fix for Popovers/Modals overlap */
-.fc-popover {
-    z-index: 9999 !important;
-    background-color: var(--app-bg) !important;
-    border: 1px solid var(--fc-border) !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Remove the "Excel" boxy look */
-.fc-theme-standard td,
-.fc-theme-standard th,
-.fc-scrollgrid {
+/* Borders & Grid */
+.fc-theme-standard td, .fc-theme-standard th, .fc-scrollgrid {
     border: 1px solid var(--fc-border) !important;
 }
+.fc-scrollgrid { border-radius: 8px; overflow: hidden; border: none !important; }
 
-.fc-scrollgrid {
-    border-radius: 8px;
-    overflow: hidden;
+/* Headers */
+.fc .fc-col-header-cell { background-color: rgba(0, 0, 0, 0.02); padding: 12px 0 !important; }
+.fc .fc-daygrid-day-number { font-size: 0.8rem; font-weight: 600; padding: 10px !important; color: var(--app-muted); text-decoration: none !important; }
+
+/* --- THE PILL FIX --- */
+
+/* Target every type of event container to force the "Pill" look */
+/* --- THE PILL FIX --- */
+
+/* Target the container but DO NOT set a background-color here */
+/* --- THE PILL FIX (One Line Version) --- */
+
+/* --- THE PILL FIX (Fixed Single Line) --- */
+
+/* --- THE PILL FIX (Fixed Single Line) --- */
+
+/* --- THE PILL FIX --- */
+
+.fc-daygrid-event, .fc-daygrid-dot-event, .fc-event {
+    border-radius: 4px !important;
+    margin: 1px 4px !important;
+    padding: 2px 8px !important;
     border: none !important;
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+
+    /* Default: Side-by-side */
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    min-height: 22px !important;
 }
 
-/* Column Headers (Mon, Tue, etc.) */
-.fc .fc-col-header-cell {
-    background-color: rgba(0, 0, 0, 0.02);
-    padding: 12px 0 !important;
+/* Hide the dot */
+.fc-daygrid-event-dot, .fc-event-dot { display: none !important; }
+
+/* Content Layout */
+.fc-event-main, .fc-event-main-frame {
+    color: white !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: 100%;
 }
 
-.dark .fc .fc-col-header-cell {
-    background-color: rgba(255, 255, 255, 0.02);
+.fc-event-time {
+    font-weight: 800;
+    margin-right: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
-/* Day Numbers */
-.fc .fc-daygrid-day-number {
-    font-size: 0.8rem;
+.fc-event-title {
     font-weight: 600;
-    padding: 10px !important;
-    color: var(--app-muted);
-    text-decoration: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Event "Pills" styling */
-.fc-event {
-    border: none !important;
-    margin: 2px 4px !important;
-    padding: 3px 8px !important;
-    border-radius: 6px !important;
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    cursor: pointer;
-    transition: transform 0.1s ease, filter 0.1s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+/* --- HOVER STATE (The Fix) --- */
+
+.fc-daygrid-event:hover {
+    z-index: 999 !important;
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+
+    /* Switch to block on hover to allow the text to wrap downward */
+    display: block !important;
+    height: auto !important;
 }
 
-.fc-event:hover {
-    transform: translateY(-1px);
-    filter: brightness(0.9);
+.fc-daygrid-event:hover .fc-event-main,
+.fc-daygrid-event:hover .fc-event-main-frame {
+    display: block !important; /* Stack time and title only on hover */
 }
 
-/* Toolbar Buttons Cleanup (for the ones we didn't replace) */
+.fc-daygrid-event:hover .fc-event-title {
+    white-space: normal !important; /* Allow wrapping */
+    overflow: visible !important;
+    display: block !important;
+}
+
+/* --- Buttons --- */
 .fc .fc-button-primary {
     background-color: transparent !important;
     border: 1px solid var(--fc-border) !important;
     color: var(--app-text) !important;
     text-transform: capitalize !important;
-    font-weight: 500 !important;
-    font-size: 0.8rem !important;
 }
-
-.fc .fc-button-primary:hover {
-    background-color: var(--fc-today-bg-color) !important;
-}
-
 .fc .fc-button-active {
-    background-color: #228be6 !important; /* Mantine Blue */
+    background-color: #228be6 !important;
     color: white !important;
-    border-color: #228be6 !important;
 }
