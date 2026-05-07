@@ -2,31 +2,55 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Card, Center, Loader, Modal, Title, Text,SegmentedControl,Group } from "@mantine/core";
+import {
+    Card,
+    Center,
+    Loader,
+    Modal,
+    Title,
+    Text,
+    SegmentedControl,
+    Group,
+    Divider,
+    Badge,
+    Grid,
+    Paper,
+    Stack
+} from "@mantine/core";
 import { getAppointments } from "../api/appointments";
 import { showNotification } from "@mantine/notifications";
-import { useEffect, useState,useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { EventApi } from "@fullcalendar/core";
+import {
+    IconClock,
+    IconUser,
+    IconPhone,
+    IconMail,
+    IconCalendar
+} from "@tabler/icons-react";
+import dayjs from "dayjs";
 
 export default function BookingCalendar() {
-  const [bookings, setBookings] = useState({});
-  const [loading, setLoading] = useState(true);
+    const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
     const calendarRef = useRef<FullCalendar>(null);
-  const [opened, setOpened] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<EventApi | null>(null);
+    const [opened, setOpened] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<EventApi | null>(null);
     const [view, setView] = useState("dayGridMonth");
+
     const handleViewChange = (newView: string) => {
         setView(newView);
         calendarRef.current?.getApi().changeView(newView);
     };
-  const handleEventClick = (info: any) => {
-    setSelectedEvent(info.event);
-    setOpened(true);
-  };
 
-  useEffect(() => {
-    load();
-  }, []);
+    const handleEventClick = (info: any) => {
+        setSelectedEvent(info.event);
+        setOpened(true);
+    };
+
+    useEffect(() => {
+        load();
+    }, []);
 
     const load = async () => {
         try {
@@ -41,7 +65,6 @@ export default function BookingCalendar() {
             const formatted = data.map((item) => {
                 const [date] = item.date.split("T");
 
-                // 1. Get Service Names
                 const serviceNames =
                     item.services && item.services.length > 0
                         ? item.services
@@ -49,7 +72,6 @@ export default function BookingCalendar() {
                             .join(", ")
                         : "No service";
 
-                // 2. Get Service Categories (Fixed: Added the logic back)
                 const serviceCategories =
                     item.services && item.services.length > 0
                         ? item.services.map((s) => s.service?.category || "").join(", ")
@@ -87,79 +109,146 @@ export default function BookingCalendar() {
         }
     };
 
-  if (loading) {
+    if (loading) {
+        return (
+            <Center style={{ height: "70vh" }}>
+                <Loader size="lg" />
+            </Center>
+        );
+    }
+
     return (
-      <Center style={{ height: "70vh" }}>
-        <Loader size="lg" />
-      </Center>
+        <Card shadow="sm" padding="lg" radius="md">
+            <Group justify="space-between" mb="md">
+                <Title order={3}>Calendar Overview</Title>
+                <SegmentedControl
+                    value={view}
+                    onChange={handleViewChange}
+                    data={[
+                        { label: "Month", value: "dayGridMonth" },
+                        { label: "Week", value: "timeGridWeek" },
+                        { label: "Day", value: "timeGridDay" },
+                    ]}
+                    radius="md"
+                />
+            </Group>
+
+            <FullCalendar
+                ref={calendarRef}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView="dayGridMonth"
+                locale="en-us"
+                headerToolbar={{
+                    left: "prev,next today",
+                    center: "title",
+                    right: "",
+                }}
+                events={bookings}
+                eventClick={handleEventClick}
+                height="80vh"
+                editable={false}
+                selectable={true}
+                eventDisplay="block"
+                displayEventTime={true}
+                eventTimeFormat={{
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    meridiem: 'short'
+                }}
+            />
+
+            <Modal
+                opened={opened}
+                onClose={() => setOpened(false)}
+                title={<Text fw={700} size="lg">Appointment Details</Text>}
+                centered
+                size="md"
+                radius="md"
+                padding="xl"
+            >
+                {selectedEvent && (
+                    <Stack gap="md">
+                        <Group justify="space-between" align="flex-start">
+                            <Stack gap={2}>
+                                <Text size="xs" c="dimmed" tt="uppercase" fw={700} lts="1px">
+                                    Service(s)
+                                </Text>
+                                <Text size="xl" fw={800} c="teal.7" style={{ lineHeight: 1.2 }}>
+                                    {selectedEvent.title}
+                                </Text>
+                            </Stack>
+                            <Badge
+                                color={
+                                    selectedEvent.extendedProps.status === 'Rescheduled' ? 'orange' :
+                                        selectedEvent.extendedProps.status === 'Pending' ? 'yellow' : 'teal'
+                                }
+                                variant="light"
+                                size="lg"
+                            >
+                                {selectedEvent.extendedProps.status}
+                            </Badge>
+                        </Group>
+
+                        <Divider variant="dashed" />
+
+                        <Paper withBorder p="sm" radius="md" bg="gray.0">
+                            <Grid gutter="md">
+                                <Grid.Col span={6}>
+                                    <Group gap="xs" wrap="nowrap">
+                                        <IconCalendar size={20} color="var(--mantine-color-teal-6)" />
+                                        <Stack gap={0}>
+                                            <Text size="xs" c="dimmed" fw={700}>DATE</Text>
+                                            <Text size="sm" fw={600}>
+                                                {dayjs(selectedEvent.start).format("MMMM D, YYYY")}
+                                            </Text>
+                                        </Stack>
+                                    </Group>
+                                </Grid.Col>
+                                <Grid.Col span={6}>
+                                    <Group gap="xs" wrap="nowrap">
+                                        <IconClock size={20} color="var(--mantine-color-teal-6)" />
+                                        <Stack gap={0}>
+                                            <Text size="xs" c="dimmed" fw={700}>TIME</Text>
+                                            <Text size="sm" fw={600}>
+                                                {dayjs(selectedEvent.start).format("h:mm A")} - {dayjs(selectedEvent.end).format("h:mm A")}
+                                            </Text>
+                                        </Stack>
+                                    </Group>
+                                </Grid.Col>
+                            </Grid>
+                        </Paper>
+
+                        <Stack gap="xs">
+                            <Text size="xs" c="dimmed" tt="uppercase" fw={700} lts="1px">Client Details</Text>
+                            <Group gap="sm">
+                                <IconUser size={18} stroke={1.5} />
+                                <Text size="sm" fw={500}>{selectedEvent.extendedProps.customer}</Text>
+                            </Group>
+                            <Group gap="sm">
+                                <IconPhone size={18} stroke={1.5} color="gray" />
+                                <Text size="sm">{selectedEvent.extendedProps.phone}</Text>
+                            </Group>
+                            <Group gap="sm">
+                                <IconMail size={18} stroke={1.5} color="gray" />
+                                <Text size="sm">{selectedEvent.extendedProps.email}</Text>
+                            </Group>
+                        </Stack>
+
+                        <Divider variant="dashed" />
+
+                        <Group justify="space-between" bg="teal.0" p="xs" style={{ borderRadius: '8px' }}>
+                            <Group gap="xs">
+                                {/* Standard person icon as requested */}
+                                <IconUser size={18} color="var(--mantine-color-teal-8)" />
+                                <Text size="sm" fw={600} c="teal.9">Staff Assigned:</Text>
+                            </Group>
+                            <Text size="sm" fw={700} c="teal.9">
+                                {selectedEvent.extendedProps.employee}
+                            </Text>
+                        </Group>
+                    </Stack>
+                )}
+            </Modal>
+        </Card>
     );
-  }
-
-  return (
-      <Card shadow="sm" padding="lg" radius="md">
-          {/* 1. This Group puts the Title and Toggle on the same line */}
-          <Group justify="space-between" mb="md">
-              <Title order={3}>Calendar Overview</Title>
-
-              <SegmentedControl
-                  value={view}
-                  onChange={handleViewChange}
-                  data={[
-                      { label: "Month", value: "dayGridMonth" },
-                      { label: "Week", value: "timeGridWeek" },
-                      { label: "Day", value: "timeGridDay" },
-                  ]}
-                  radius="md"
-              />
-          </Group>
-
-          <FullCalendar
-              ref={calendarRef}
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              locale="en-us"
-              headerToolbar={{
-                  left: "prev,next today",
-                  center: "title",
-                  right: "",
-              }}
-              events={bookings}
-              eventClick={handleEventClick}
-              height="80vh"
-              editable={false}
-              selectable={true}
-              eventDisplay="block"
-              displayEventTime={true}
-              eventTimeFormat={(info) => {
-                  const date = info.date;
-                  const hour = date.hour % 12 || 12;
-                  const minute = date.minute.toString().padStart(2, '0');
-                  const ampm = date.hour >= 12 ? 'pm' : 'am';
-
-                  return `${hour}:${minute}${ampm}`;
-              }}
-          />
-
-      <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
-        title="Appointment Details"
-      >
-        {selectedEvent && (
-          <>
-            <Text fw={600}>Service: {selectedEvent.title}</Text>
-            <br />
-            <Text>Start: {selectedEvent.start?.toLocaleString()}</Text>
-            <Text>End: {selectedEvent.end?.toLocaleString()}</Text>
-            <br />
-            <Text>Client: {selectedEvent.extendedProps.customer}</Text>
-            <Text>Contact: {selectedEvent.extendedProps.phone}</Text>
-            <Text>Email: {selectedEvent.extendedProps.email}</Text>
-            <br />
-            <Text>Therapist: {selectedEvent.extendedProps.employee}</Text>
-          </>
-        )}
-      </Modal>
-    </Card>
-  );
 }
