@@ -31,7 +31,7 @@ import {
 import dayjs from "dayjs";
 
 export default function BookingCalendar() {
-    const [bookings, setBookings] = useState([]);
+    const [bookings, setBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const calendarRef = useRef<FullCalendar>(null);
     const [opened, setOpened] = useState(false);
