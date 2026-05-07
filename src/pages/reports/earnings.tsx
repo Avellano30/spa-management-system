@@ -42,41 +42,51 @@ export default function EarningsReport({ appointments }: Props) {
         ? "earnings-cash"
         : "earnings-online";
 
-  const aggregated = useMemo(() => {
-    const acc: Record<string, Record<string, number>> = {};
+    const aggregated = useMemo(() => {
+        const acc: Record<string, Record<string, number>> = {};
 
-    appointments.forEach((appt) => {
-      let paidPayments = (appt.payments ?? []).filter(
-        (p) => p.status === "Completed",
-      );
+        appointments.forEach((appt) => {
+            // 1. UPDATED STATUS GATE:
+            // We skip "Refunded" because the money is gone.
+            // We skip "Pending/Approved" because they aren't finalized yet.
+            // We ALLOW "Completed" AND "Cancelled" (since you keep client-cancelled payments).
+            const finalizedStatuses = ["Completed", "Cancelled"];
+            if (!finalizedStatuses.includes(appt.status)) return;
 
-      if (paymentFilter !== "All") {
-        paidPayments = paidPayments.filter((p) => p.method === paymentFilter);
-      }
+            // 2. THE REFUND FILTER:
+            // Just in case an appointment has multiple payment attempts,
+            // we only sum the successful ones and ignore any specific refund rows.
+            let paidPayments = (appt.payments ?? []).filter(
+                (p) => p.status === "Completed" && p.type !== "Refund"
+            );
 
-      if (!paidPayments.length) return;
+            if (paymentFilter !== "All") {
+                paidPayments = paidPayments.filter((p) => p.method === paymentFilter);
+            }
 
-      const dateKey = dayjs(appt.date).format("YYYY-MM-DD");
-      // For each service in the appointment, aggregate earnings
-      const services =
-        appt.services && appt.services.length > 0
-          ? appt.services.map((s) => s.service?.name || "Service deleted")
-          : ["Service (deleted)"];
+            if (!paidPayments.length) return;
 
-      const totalPayments = paidPayments.reduce(
-        (sum, p) => sum + Number(p.amount),
-        0,
-      );
+            const dateKey = dayjs(appt.date).format("YYYY-MM-DD");
 
-      if (!acc[dateKey]) acc[dateKey] = {};
-      services.forEach((service) => {
-        if (!acc[dateKey][service]) acc[dateKey][service] = 0;
-        acc[dateKey][service] += totalPayments / services.length; // Split payment equally among services
-      });
-    });
+            const services =
+                appt.services && appt.services.length > 0
+                    ? appt.services.map((s) => s.service?.name || "Service deleted")
+                    : ["Service (deleted)"];
 
-    return acc;
-  }, [appointments, paymentFilter]);
+            const totalPayments = paidPayments.reduce(
+                (sum, p) => sum + Number(p.amount),
+                0,
+            );
+
+            if (!acc[dateKey]) acc[dateKey] = {};
+            services.forEach((service) => {
+                if (!acc[dateKey][service]) acc[dateKey][service] = 0;
+                acc[dateKey][service] += totalPayments / services.length;
+            });
+        });
+
+        return acc;
+    }, [appointments, paymentFilter]);
 
   const chartData: EarningsRow[] = useMemo(() => {
     return Object.entries(aggregated)
