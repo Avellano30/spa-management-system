@@ -159,7 +159,7 @@ export default function Appointments() {
     }
 
     try {
-      await cancelAppointment(selectedForCancel._id, cancelNotes);
+      await cancelAppointment(selectedForCancel._id, cancelNotes,true);
       showNotification({
         color: "green",
         title: "Success",
@@ -367,9 +367,20 @@ export default function Appointments() {
                           : a.employee || "-"}
                       </Table.Td>
                       <Table.Td>{a.notes || "-"}</Table.Td>
-                      <Table.Td>
-                        <Badge color={statusColor(a.status)}>{a.status}</Badge>
-                      </Table.Td>
+                        {/* Locate the Status Table Cell inside your .map() loop */}
+                        <Table.Td style={{ minWidth: '120px', whiteSpace: 'nowrap' }}>
+                            <Badge
+                                color={statusColor(a.status)}
+                                variant="filled"
+                                fullWidth
+                                style={{
+                                    minWidth: '110px', // Ensures "Rescheduled" fits perfectly
+                                    textAlign: 'center'
+                                }}
+                            >
+                                {a.status}
+                            </Badge>
+                        </Table.Td>
                       <Table.Td>
                         {a.payments?.length ? a.payments[0]?.method : "Cash"}
                       </Table.Td>
@@ -392,16 +403,15 @@ export default function Appointments() {
                               Approve
                             </Button>
                           )}
-                          {(a.status === "Pending" ||
-                            a.status === "Approved") && (
-                            <Button
-                              size="xs"
-                              color="red"
-                              onClick={() => openCancelModal(a)}
-                            >
-                              Cancel
-                            </Button>
-                          )}
+                            {["Pending", "Approved", "Rescheduled"].includes(a.status) && (
+                                <Button
+                                    size="xs"
+                                    color="red"
+                                    onClick={() => openCancelModal(a)}
+                                >
+                                    Cancel
+                                </Button>
+                            )}
                           {(a.status === "Approved" ||
                             a.status === "Rescheduled") && (
                             <>

@@ -58,7 +58,9 @@ export const PaymentHistoryModal = ({ payments }: any) => {
                           : "PENDING"}
                     </Badge>
                   </Table.Td>
-                  <Table.Td>{p.remarks}</Table.Td>
+                    <Table.Td>
+                        {p.remarks ? p.remarks.replace(/^Refund:\s*/i, "") : "-"}
+                    </Table.Td>
                   <Table.Td>{new Date(p.createdAt).toLocaleString()}</Table.Td>
                 </Table.Tr>
               ))}

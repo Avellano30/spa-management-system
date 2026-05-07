@@ -72,11 +72,11 @@ export async function approveAppointment(id: string) {
   return res.json();
 }
 
-export async function cancelAppointment(id: string, notes: string) {
+export async function cancelAppointment(id: string, notes: string, isAdmin: boolean = false) {
   const res = await fetch(`${endpoint}/appointment/${id}/cancel`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ notes }),
+    body: JSON.stringify({ notes, isAdmin }),
   });
   if (!res.ok)
     throw new Error((await res.json()).message || "Failed to cancel");

@@ -11,6 +11,7 @@ const statusColors: Record<string, string> = {
   Completed: "green",
   Cancelled: "red",
   Rescheduled: "orange",
+    Refunded :"gray",
 
 };
 
@@ -21,6 +22,7 @@ const defaultStats: Record<string, number> = {
   Completed: 0,
   Cancelled: 0,
   Rescheduled: 0,
+    Refunded:0,
 
 };
 
