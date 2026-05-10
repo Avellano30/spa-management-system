@@ -398,7 +398,7 @@ const AdminSettingsPage: React.FC = () => {
               <Group grow>
                   <TextInput
                       label="Opening Time"
-                      type="time" // This is the magic part
+                      type="time"
                       value={spa?.openingTime || ""}
                       onChange={(e) =>
                           setSpa((prev) =>
@@ -406,10 +406,9 @@ const AdminSettingsPage: React.FC = () => {
                           )
                       }
                   />
-
                   <TextInput
                       label="Closing Time"
-                      type="time" // This is the magic part
+                      type="time"
                       step="60"
                       value={spa?.closingTime || ""}
                       onChange={(e) =>
@@ -419,9 +418,26 @@ const AdminSettingsPage: React.FC = () => {
                       }
                   />
               </Group>
-            <Group justify="right" mt="md">
-              <Button onClick={saveSpa}>Save Spa Settings</Button>
-            </Group>
+
+              {/* 👇 Add this */}
+              <NumberInput
+                  label="Buffer Time (minutes)"
+                  description="Extra minutes added after each appointment for room turnover"
+                  value={spa?.bufferTime ?? 15}
+                  min={0}
+                  max={60}
+                  step={5}
+                  mt="sm"
+                  onChange={(value) =>
+                      setSpa((prev) =>
+                          prev ? { ...prev, bufferTime: Number(value) || 0 } : null
+                      )
+                  }
+              />
+
+              <Group justify="right" mt="md">
+                  <Button onClick={saveSpa}>Save Spa Settings</Button>
+              </Group>
           </Paper>
         </Tabs.Panel>
 

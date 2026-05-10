@@ -44,7 +44,7 @@ export interface Appointment {
   date: string;
   startTime: string;
   endTime: string;
-  status: "Pending" | "Approved" | "Cancelled" | "Rescheduled" | "Completed";
+  status: "Pending" | "Approved" | "Cancelled" | "Rescheduled" | "Completed" | "Refunded";
   notes?: string;
   payments?: Payment[];
   employee?: string | EmployeeRef;

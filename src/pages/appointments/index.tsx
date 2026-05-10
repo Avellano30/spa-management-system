@@ -536,6 +536,8 @@ export default function Appointments() {
                 title="Reschedule Appointment"
                 centered
                 size="lg"
+                overlayProps={{ blur: 3, backgroundOpacity: 0.4 }}
+
             >
                 <Stack gap="md">
                     {/* Date Picker */}
@@ -711,19 +713,79 @@ export default function Appointments() {
             <Modal
                 opened={cancelModal}
                 onClose={() => setCancelModal(false)}
-                title="Cancel Appointment"
+                title={<Text fw={700} size="lg">Cancel Appointment</Text>}
                 centered
+                size="md"
+                overlayProps={{ blur: 3, backgroundOpacity: 0.4 }}
             >
-                <TextInput
-                    label="Cancellation Notes"
-                    placeholder="Reason for cancellation..."
-                    value={cancelNotes}
-                    onChange={(e) => setCancelNotes(e.currentTarget.value)}
-                    required
-                />
-                <Button mt="sm" color="red" onClick={handleCancel}>
-                    Confirm Cancel
-                </Button>
+                <Stack gap="md">
+                    {/* Appointment summary */}
+                    {selectedForCancel && (
+                        <Box p="sm" style={{ backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
+                            <Text size="xs" c="dimmed" fw={600} mb={4}>CANCELLING APPOINTMENT</Text>
+                            <Text size="sm" fw={600}>
+                                {selectedForCancel.services?.map((s) => s.service?.name).join(", ")}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                                {new Date(selectedForCancel.date).toLocaleDateString()} at {formatTime(selectedForCancel.startTime)}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                                Client: {selectedForCancel.clientId?.firstname} {selectedForCancel.clientId?.lastname}
+                            </Text>
+                        </Box>
+                    )}
+
+                    {/* Refund notice — only show if there are completed payments */}
+                    {selectedForCancel?.payments?.some((p) => p.status === "Completed") ? (
+                        <Box p="sm" style={{ backgroundColor: '#fff3bf', borderRadius: '10px', border: '1px solid #f59f00' }}>
+                            <Group gap="xs" mb={4}>
+                                <Text size="sm" fw={700} c="yellow.8">💰 Refund Will Be Processed</Text>
+                            </Group>
+                            <Text size="xs" c="yellow.9">
+                                This appointment has a completed payment of{" "}
+                                <b>₱{selectedForCancel.payments?.filter((p) => p.status === "Completed").reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</b>.
+                                Cancelling will automatically trigger a refund and set the status to <b>Refunded</b>.
+                            </Text>
+                        </Box>
+                    ) : (
+                        <Box p="sm" style={{ backgroundColor: '#fff5f5', borderRadius: '10px', border: '1px solid #ffa8a8' }}>
+                            <Text size="xs" c="red.7">
+                                ⚠️ No completed payment found. This appointment will be marked as <b>Cancelled</b> with no refund.
+                            </Text>
+                        </Box>
+                    )}
+
+                    <Textarea
+                        label="Cancellation Notes"
+                        placeholder="Reason for cancellation..."
+                        value={cancelNotes}
+                        onChange={(e) => setCancelNotes(e.currentTarget.value)}
+                        required
+                        minRows={3}
+                        autosize
+                        styles={{ input: { borderRadius: '10px' } }}
+                    />
+
+                    <Group grow>
+                        <Button
+                            color="gray"
+                            variant="outline"
+                            onClick={() => setCancelModal(false)}
+                            radius="xl"
+                        >
+                            Go Back
+                        </Button>
+                        <Button
+                            color="red"
+                            onClick={handleCancel}
+                            radius="xl"
+                        >
+                            {selectedForCancel?.payments?.some((p) => p.status === "Completed")
+                                ? "Cancel & Refund"
+                                : "Confirm Cancel"}
+                        </Button>
+                    </Group>
+                </Stack>
             </Modal>
 
             {/* Cash Payment Modal */}
