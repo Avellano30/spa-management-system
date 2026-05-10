@@ -127,18 +127,19 @@ export async function completeAppointment(id: string) {
 }
 
 export async function rescheduleAppointment(
-  id: string,
-  date: string,
-  startTime: string,
+    id: string,
+    date: string,
+    startTime: string,
+    notes?: string,   // ← add this
 ) {
-  const res = await fetch(`${endpoint}/appointment/${id}/reschedule`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ date, startTime }),
-  });
-  if (!res.ok)
-    throw new Error((await res.json()).message || "Failed to reschedule");
-  return res.json();
+    const res = await fetch(`${endpoint}/appointment/${id}/reschedule`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, startTime, notes }),  // ← add notes here
+    });
+    if (!res.ok)
+        throw new Error((await res.json()).message || "Failed to reschedule");
+    return res.json();
 }
 
 // Dashboard stats
@@ -181,3 +182,15 @@ export const createCashPayment = async (
 
   return res.json();
 };
+export async function getOccupancyData(date: string): Promise<{
+    openingTime: string;
+    closingTime: string;
+    totalRooms: number;
+    bufferTime?: number;
+    bookings: { start: string; end: string }[];
+}> {
+    const res = await fetch(`${endpoint}/appointment/occupancy?date=${date}`);
+    if (!res.ok)
+        throw new Error((await res.json()).message || "Failed to fetch occupancy data");
+    return res.json();
+}

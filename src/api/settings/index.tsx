@@ -6,7 +6,8 @@ export interface SpaSettings {
   downPayment: number;
   openingTime: string;
   closingTime: string;
-  createdAt?: string;
+    bufferTime?: number;
+    createdAt?: string;
   updatedAt?: string;
 }
 

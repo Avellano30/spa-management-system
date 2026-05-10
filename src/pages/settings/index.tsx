@@ -103,7 +103,7 @@ const AdminSettingsPage: React.FC = () => {
         }));
         setCategories(formatted);
       } catch (err) {
-        console.error("Failed to load categories");
+        console.error("Failed to load categories", err);
       } finally {
         setLoadingCategories(false);
       }
@@ -116,7 +116,7 @@ const AdminSettingsPage: React.FC = () => {
         }));
         setIntensities(formatted);
       } catch (err) {
-        console.error("Failed to load intensities");
+        console.error("Failed to load intensities",err);
       } finally {
         setLoadingIntensities(false);
       }

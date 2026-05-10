@@ -30,24 +30,18 @@ export default function App() {
   const [stats, setStats] = useState<Record<string, number>>(defaultStats);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await getAppointmentStats();
-        setStats({ ...defaultStats, ...data });
-      } catch (err: any) {
-        showNotification({
-          color: "red",
-          title: "Error",
-          message: err?.message || "Failed to fetch appointment stats",
-        });
-        setStats(defaultStats);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
+    useEffect(() => {
+        getAppointmentStats()
+            .then((data) => setStats({ ...defaultStats, ...data }))
+            .catch((err) => {
+                showNotification({
+                    color: "red",
+                    title: "Error",
+                    message: (err as Error)?.message || "Failed to fetch appointment stats",
+                });
+                setStats(defaultStats);
+            });
+    }, []);
   const handleNavigate = (status: string) => {
     navigate(`/appointments?status=${status}`);
   };

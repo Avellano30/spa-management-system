@@ -110,6 +110,7 @@ export default function AppointmentsReport({ appointments }: Props) {
     "Approved",
     "Cancelled",
     "Rescheduled",
+      "Refunded",
     "Completed",
   ].map((status) => ({ value: status, label: status }));
 
