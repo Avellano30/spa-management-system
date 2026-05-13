@@ -161,6 +161,18 @@ export default function Appointments() {
                 : checkTime >= openingTime || checkTime < closingTime;
         if (!isWithinHours) return true;
 
+        // 2. Cutoff check — service must finish before closing time
+        const isOvernight = closingTime < openingTime;
+        const baseDate = isOvernight && checkTime < openingTime
+            ? "2026-01-02"
+            : "2026-01-01";
+        const slotStart = dayjs(`${baseDate}T${checkTime}`);
+        const slotEnd = slotStart.add(serviceDuration, 'minute');
+        const adjustedClosing = isOvernight
+            ? dayjs(`2026-01-02T${closingTime}`)
+            : dayjs(`2026-01-01T${closingTime}`);
+        if (slotEnd.isAfter(adjustedClosing)) return true;
+
         const overlapping = bookings.filter(({ start, end }) => {
             const check = dayjs(`2026-01-01T${checkTime}`);
             const s = dayjs(`2026-01-01T${start}`);
