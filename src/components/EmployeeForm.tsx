@@ -50,6 +50,7 @@ export default function ServiceForm({
     { label: "Thursday", value: "thursday" },
     { label: "Friday", value: "friday" },
     { label: "Saturday", value: "saturday" },
+      { label: "Sunday", value: "Sunday" },
   ];
 
   return (
