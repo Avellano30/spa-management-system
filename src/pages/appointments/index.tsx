@@ -382,8 +382,8 @@ export default function Appointments() {
                         value={sortOrder}
                         onChange={(v) => setSortOrder((v as "newest" | "oldest") || "newest")}
                         data={[
-                            { value: "newest", label: "📅 Newest First" },
-                            { value: "oldest", label: "📅 Oldest First" },
+                            { value: "newest", label: "Newest First" },
+                            { value: "oldest", label: "Oldest First" },
                         ]}
                         style={{ width: 160 }}
                     />
