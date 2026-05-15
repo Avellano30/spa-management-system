@@ -129,11 +129,7 @@ export default function Appointments() {
         void load();
     }, [load]);
 
-    useEffect(() => {
-        if (appointments.length > 0) {
-            console.log("Sample employee field:", appointments[0].employee);
-        }
-    }, [appointments]);
+
 
     // Apply filters
 
