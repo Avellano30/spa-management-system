@@ -129,6 +129,12 @@ export default function Appointments() {
         void load();
     }, [load]);
 
+    useEffect(() => {
+        if (appointments.length > 0) {
+            console.log("Sample employee field:", appointments[0].employee);
+        }
+    }, [appointments]);
+
     // Apply filters
 
     useEffect(() => {
@@ -142,16 +148,19 @@ export default function Appointments() {
                     a.services?.some((srv) =>
                         srv.service?.name?.toLowerCase().includes(s),
                     ) ||
-                    false,
+                    (typeof a.employee === "object" && a.employee !== null
+                            ? (a.employee as { name?: string }).name?.toLowerCase() || ""
+                            : String(a.employee || "").toLowerCase()
+                    ).includes(s),
             );
         }
         // ── Sort by date ──
         temp.sort((a, b) => {
-            const diff = new Date(a.date).getTime() - new Date(b.date).getTime();
+            const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             return sortOrder === "newest" ? -diff : diff;
         });
         setFiltered(temp);
-    }, [search, appointments,sortOrder]);
+    }, [search, appointments, sortOrder]);
     // ── Slot logic (mirrored from client) ──────────────────────────────────────
 
     function isSlotDisabled(checkTime: string): boolean {
@@ -388,7 +397,7 @@ export default function Appointments() {
                         style={{ width: 160 }}
                     />
                     <TextInput
-                        placeholder="Search by client or service..."
+                        placeholder="Search by client, service or therapist..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         rightSection={<IconSearch size={16} />}
@@ -447,7 +456,7 @@ export default function Appointments() {
                                                 {a.services && a.services.length > 0 ? (
                                                     <ul style={{ margin: 0, paddingLeft: 16 }}>
                                                         {a.services.map((s, idx) => (
-                                                            <li key={s.serviceId || idx}>
+                                                            <li key={String(s.serviceId) || idx}>
                                                                 <strong>{s.service?.name || "Service deleted"}</strong>
                                                                 {s.intensity && (
                                                                     <span style={{ marginLeft: 4, fontStyle: "italic", color: "#888" }}>

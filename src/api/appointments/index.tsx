@@ -35,6 +35,7 @@ export interface Appointment {
     lastname: string;
     email: string;
     phone: string;
+      createdAt: string;
   };
   services: {
     serviceId: string;
@@ -48,6 +49,7 @@ export interface Appointment {
   notes?: string;
   payments?: Payment[];
   employee?: string | EmployeeRef;
+    createdAt: string;
 }
 
 export async function getAppointments(params?: {
@@ -192,5 +194,10 @@ export async function getOccupancyData(date: string): Promise<{
     const res = await fetch(`${endpoint}/appointment/occupancy?date=${date}`);
     if (!res.ok)
         throw new Error((await res.json()).message || "Failed to fetch occupancy data");
+    return res.json();
+}
+export async function getMonthlyAvailability(month: string): Promise<Record<string, "open" | "full">> {
+    const res = await fetch(`${endpoint}/appointment/monthly-availability?month=${month}`);
+    if (!res.ok) throw new Error("Failed to fetch monthly availability");
     return res.json();
 }
