@@ -30,13 +30,18 @@ import {
     createCashPayment,
 } from "../../api/appointments";
 import { useSearchParams } from "react-router";
-import { DateInput } from "@mantine/dates";
+import { DateInput,DatePickerInput } from "@mantine/dates";
+
 import type { DateValue } from "@mantine/dates";
 import { IconRefresh, IconSearch } from "@tabler/icons-react";
 import { PaymentHistoryModal } from "../../components/PaymentHistoryModal.tsx";
 import { getSpaSettings, type SpaSettings } from "../../api/settings";
 import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 const formatTime = (time: string) => {
     const [hours, minutes] = time.split(":");
     const date = new Date();
@@ -82,7 +87,7 @@ export default function Appointments() {
     const [cashAmount, setCashAmount] = useState<string | number>(0);
     const [cashRemarks, setCashRemarks] = useState("");
     const [selectedForCash, setSelectedForCash] = useState<Appointment | null>(null);
-    const [dateFilter, setDateFilter] = useState<DateValue>(null);
+    const [dateRange, setDateRange] = useState<[DateValue, DateValue]>([null, null]);
 
 
     const [loading, setLoading] = useState(true);
@@ -153,16 +158,20 @@ export default function Appointments() {
                     ).includes(s),
             );
         }
-        if (dateFilter) {
-            const filterStr = dayjs(dateFilter as Date).format("YYYY-MM-DD");
-            temp = temp.filter((a) => a.date.split("T")[0] === filterStr);
+        if (dateRange[0] && dateRange[1]) {
+            const start = dayjs(dateRange[0] as Date).startOf("day");
+            const end = dayjs(dateRange[1] as Date).endOf("day");
+            temp = temp.filter((a) => {
+                const apptDate = dayjs(a.date.split("T")[0]);
+                return apptDate.isSameOrAfter(start) && apptDate.isSameOrBefore(end);
+            });
         }
         temp.sort((a, b) => {
             const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             return sortOrder === "newest" ? -diff : diff;
         });
         setFiltered(temp);
-    }, [search, appointments, sortOrder, dateFilter]);
+    }, [search, appointments, sortOrder, dateRange]);
 
 
     // ── Slot logic (mirrored from client) ──────────────────────────────────────
@@ -390,12 +399,13 @@ export default function Appointments() {
             <Group justify="space-between">
                 <Title order={2}>Appointment Management</Title>
                 <Group>
-                    <DateInput
-                        placeholder="Filter by date"
-                        value={dateFilter}
-                        onChange={setDateFilter}
+                    <DatePickerInput
+                        type="range"
+                        placeholder="Filter by date range"
+                        value={dateRange}
+                        onChange={setDateRange}
                         clearable
-                        style={{ width: 160 }}
+                        style={{ width: 220 }}
                         excludeDate={(date) => {
                             const dateStr = dayjs(date).format("YYYY-MM-DD");
                             return !appointments.some((a) => a.date.split("T")[0] === dateStr);
