@@ -29,7 +29,7 @@ import {
     type Appointment,
     createCashPayment,
 } from "../../api/appointments";
-
+import { useSearchParams } from "react-router";
 import { DateInput } from "@mantine/dates";
 import type { DateValue } from "@mantine/dates";
 import { IconRefresh, IconSearch } from "@tabler/icons-react";
@@ -51,7 +51,10 @@ const formatTime = (time: string) => {
 export default function Appointments() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [filtered, setFiltered] = useState<Appointment[]>([]);
-    const [statusFilter, setStatusFilter] = useState<string>("All");
+    const [searchParams] = useSearchParams();
+    const [statusFilter, setStatusFilter] = useState<string>(
+        searchParams.get("status") || "All"
+    );
     const [search, setSearch] = useState("");
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
     // Reschedule state
@@ -79,7 +82,7 @@ export default function Appointments() {
     const [cashAmount, setCashAmount] = useState<string | number>(0);
     const [cashRemarks, setCashRemarks] = useState("");
     const [selectedForCash, setSelectedForCash] = useState<Appointment | null>(null);
-
+    const [dateFilter, setDateFilter] = useState<DateValue>(null);
 
 
     const [loading, setLoading] = useState(true);
@@ -150,13 +153,18 @@ export default function Appointments() {
                     ).includes(s),
             );
         }
-        // ── Sort by date ──
+        if (dateFilter) {
+            const filterStr = dayjs(dateFilter as Date).format("YYYY-MM-DD");
+            temp = temp.filter((a) => a.date.split("T")[0] === filterStr);
+        }
         temp.sort((a, b) => {
             const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             return sortOrder === "newest" ? -diff : diff;
         });
         setFiltered(temp);
-    }, [search, appointments, sortOrder]);
+    }, [search, appointments, sortOrder, dateFilter]);
+
+
     // ── Slot logic (mirrored from client) ──────────────────────────────────────
 
     function isSlotDisabled(checkTime: string): boolean {
@@ -382,6 +390,17 @@ export default function Appointments() {
             <Group justify="space-between">
                 <Title order={2}>Appointment Management</Title>
                 <Group>
+                    <DateInput
+                        placeholder="Filter by date"
+                        value={dateFilter}
+                        onChange={setDateFilter}
+                        clearable
+                        style={{ width: 160 }}
+                        excludeDate={(date) => {
+                            const dateStr = dayjs(date).format("YYYY-MM-DD");
+                            return !appointments.some((a) => a.date.split("T")[0] === dateStr);
+                        }}
+                    />
                     <Select
                         placeholder="Sort by date"
                         value={sortOrder}
