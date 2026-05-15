@@ -29,7 +29,7 @@ import {
     type Appointment,
     createCashPayment,
 } from "../../api/appointments";
-import { useSearchParams } from "react-router";
+
 import { DateInput } from "@mantine/dates";
 import type { DateValue } from "@mantine/dates";
 import { IconRefresh, IconSearch } from "@tabler/icons-react";
@@ -53,7 +53,7 @@ export default function Appointments() {
     const [filtered, setFiltered] = useState<Appointment[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("All");
     const [search, setSearch] = useState("");
-
+    const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
     // Reschedule state
     const [rescheduleModal, setRescheduleModal] = useState(false);
     const [selected, setSelected] = useState<Appointment | null>(null);
@@ -80,15 +80,15 @@ export default function Appointments() {
     const [cashRemarks, setCashRemarks] = useState("");
     const [selectedForCash, setSelectedForCash] = useState<Appointment | null>(null);
 
-    const [searchParams] = useSearchParams();
-    const paramStatusFilter = searchParams.get("status");
+
+
     const [loading, setLoading] = useState(true);
 
     const load = useCallback(async () => {
         try {
             setLoading(true);
             const data = await getAppointments(
-                paramStatusFilter ? { status: paramStatusFilter } : undefined,
+                statusFilter !== "All" ? { status: statusFilter } : undefined,
             );
             setAppointments(data);
         } catch (err) {
@@ -96,11 +96,7 @@ export default function Appointments() {
         } finally {
             setLoading(false);
         }
-    }, [paramStatusFilter]);
-
-    useEffect(() => {
-        void load();
-    }, [load]);
+    }, [statusFilter]);
 
     useEffect(() => {
         getSpaSettings().then(setSpaSettings).catch(console.error);
@@ -129,11 +125,14 @@ export default function Appointments() {
         });
     }, [newDate,selected?._id]);
 
+    useEffect(() => {
+        void load();
+    }, [load]);
+
     // Apply filters
+
     useEffect(() => {
         let temp = [...appointments];
-        if (statusFilter !== "All")
-            temp = temp.filter((a) => a.status === statusFilter);
         if (search.trim()) {
             const s = search.toLowerCase();
             temp = temp.filter(
@@ -146,9 +145,13 @@ export default function Appointments() {
                     false,
             );
         }
+        // ── Sort by date ──
+        temp.sort((a, b) => {
+            const diff = new Date(a.date).getTime() - new Date(b.date).getTime();
+            return sortOrder === "newest" ? -diff : diff;
+        });
         setFiltered(temp);
-    }, [statusFilter, search, appointments]);
-
+    }, [search, appointments,sortOrder]);
     // ── Slot logic (mirrored from client) ──────────────────────────────────────
 
     function isSlotDisabled(checkTime: string): boolean {
@@ -374,6 +377,16 @@ export default function Appointments() {
             <Group justify="space-between">
                 <Title order={2}>Appointment Management</Title>
                 <Group>
+                    <Select
+                        placeholder="Sort by date"
+                        value={sortOrder}
+                        onChange={(v) => setSortOrder((v as "newest" | "oldest") || "newest")}
+                        data={[
+                            { value: "newest", label: "📅 Newest First" },
+                            { value: "oldest", label: "📅 Oldest First" },
+                        ]}
+                        style={{ width: 160 }}
+                    />
                     <TextInput
                         placeholder="Search by client or service..."
                         value={search}
@@ -384,9 +397,10 @@ export default function Appointments() {
                         placeholder="Filter by status"
                         value={statusFilter}
                         onChange={(v) => setStatusFilter(v || "All")}
-                        data={["All", "Pending", "Approved", "Completed", "Cancelled", "Rescheduled"]}
+                        data={["All", "Pending", "Approved", "Completed", "Cancelled", "Rescheduled", "Refunded"]}
                         style={{ width: 180 }}
                     />
+
                     <Button leftSection={<IconRefresh size={16} />} variant="light" onClick={load}>
                         Refresh
                     </Button>
