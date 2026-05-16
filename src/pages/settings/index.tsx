@@ -316,16 +316,18 @@ const AdminSettingsPage: React.FC = () => {
                 }))
               }
             />
-            <TextInput
-              label="Contact Phone"
-              value={homepage.contact.phone}
-              onChange={(e) =>
-                setHomepage((prev) => ({
-                  ...prev,
-                  contact: { ...prev.contact, phone: e.target.value },
-                }))
-              }
-            />
+              <TextInput
+                  label="Contact Phone"
+                  value={homepage.contact.phone}
+                  maxLength={11}
+                  onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+                      setHomepage((prev) => ({
+                          ...prev,
+                          contact: { ...prev.contact, phone: digits },
+                      }));
+                  }}
+              />
             <TextInput
               label="Contact Address"
               value={homepage.contact.address}
