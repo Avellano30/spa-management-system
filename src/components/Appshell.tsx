@@ -129,13 +129,7 @@ function Layout({ children }: { children: React.ReactNode }) {
             {/* SIDEBAR */}
             <AppShell.Navbar p="sm">
                 {/* STATUS BLOCK */}
-                <Box
-                    p="md"
-                    style={{
-                        borderRadius: 12,
-                        background: theme.colors.gray[0],
-                    }}
-                >
+
                     <Stack gap={4}>
                         <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
                             System Time
@@ -149,7 +143,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                             {datetime.format("h:mm:ss A")}
                         </Text>
                     </Stack>
-                </Box>
+
 
                 <Divider my="sm" />
 
