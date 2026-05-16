@@ -177,6 +177,22 @@ export default function Appointments() {
     // ── Slot logic (mirrored from client) ──────────────────────────────────────
 
     function isSlotDisabled(checkTime: string): boolean {
+        const isToday = dayjs(newDate as Date).isSame(dayjs(), "day");
+        if (isToday) {
+            const now = dayjs();
+            const slotTime = dayjs(`${dayjs().format("YYYY-MM-DD")}T${checkTime}`);
+            if (slotTime.isBefore(now)) return true;
+        }
+
+        // 2. Disable slots before/at the appointment's current start time on same day
+        const rescheduleDate = dayjs(newDate as Date).format("YYYY-MM-DD");
+        const appointmentDate = dayjs(selected?.date).format("YYYY-MM-DD");
+        if (rescheduleDate === appointmentDate) {
+            const apptTime = dayjs(`2026-01-01T${selected?.startTime}`);
+            const checkSlot = dayjs(`2026-01-01T${checkTime}`);
+            if (checkSlot.isBefore(apptTime) || checkSlot.isSame(apptTime)) return true;
+        }
+
         if (!occupancy) return false;
         const { openingTime, closingTime, totalRooms, bookings } = occupancy;
 
