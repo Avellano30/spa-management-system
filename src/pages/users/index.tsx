@@ -197,29 +197,60 @@ export default function Users() {
                         <TextInput
                             label="First name"
                             value={selected.firstname}
-                            onChange={(e) =>
-                                setSelected({ ...selected, firstname: e.currentTarget.value })
-                            }
+                            onChange={(e) => {
+                                const lettersOnly = e.currentTarget.value.replace(
+                                    /[^a-zA-Z\s]/g,
+                                    ""
+                                );
+
+                                setSelected({
+                                    ...selected,
+                                    firstname: lettersOnly,
+                                });
+                            }}
                         />
+
                         <TextInput
                             label="Last name"
                             value={selected.lastname}
-                            onChange={(e) =>
-                                setSelected({ ...selected, lastname: e.currentTarget.value })
-                            }
+                            onChange={(e) => {
+                                const lettersOnly = e.currentTarget.value.replace(
+                                    /[^a-zA-Z\s]/g,
+                                    ""
+                                );
+
+                                setSelected({
+                                    ...selected,
+                                    lastname: lettersOnly,
+                                });
+                            }}
                         />
+
                         <TextInput
                             label="Phone"
+                            type="tel"
                             value={selected.phone || ""}
-                            onChange={(e) =>
-                                setSelected({ ...selected, phone: e.currentTarget.value })
-                            }
+                            onChange={(e) => {
+                                const numbersOnly = e.currentTarget.value.replace(
+                                    /\D/g,
+                                    ""
+                                );
+
+                                setSelected({
+                                    ...selected,
+                                    phone: numbersOnly,
+                                });
+                            }}
                         />
+
                         <Select
                             label="Status"
                             value={selected.status}
                             onChange={(v) =>
-                                setSelected({ ...selected, status: v as Client["status"] })
+                                setSelected({
+                                    ...selected,
+                                    status: v as Client["status"],
+                                })
                             }
                             data={[
                                 { label: "Active", value: "active" },
@@ -227,11 +258,18 @@ export default function Users() {
                                 { label: "Banned", value: "banned" },
                             ]}
                         />
+
                         <Group justify="end" mt="md">
-                            <Button variant="light" onClick={() => setEditModal(false)}>
+                            <Button
+                                variant="light"
+                                onClick={() => setEditModal(false)}
+                            >
                                 Cancel
                             </Button>
-                            <Button onClick={handleUpdate}>Save Changes</Button>
+
+                            <Button onClick={handleUpdate}>
+                                Save Changes
+                            </Button>
                         </Group>
                     </Stack>
                 )}
