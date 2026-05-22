@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../utils/AuthContext";
-import { useGoogleLogin } from "@react-oauth/google";
-import { notifications } from "@mantine/notifications";
-import { IconX } from "@tabler/icons-react";
-import { rem } from "@mantine/core";
+import { logAuth } from '../../lib/logger';
 
 const domain = import.meta.env.VITE_ENDPOINT;
 
@@ -19,23 +16,20 @@ export default function useHandleLogin() {
         try {
             const response = await fetch(`${domain}/auth/google`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
 
             if (!response.ok) {
+                logAuth('Admin sign in failed', { method: 'email', email });
                 setErrorMessage(true);
                 return;
             }
 
             const session = await response.json();
-
             setAuthState({ firstName: session.firstName, lastName: session.lastName, email: session.email });
-
             localStorage.setItem("session", session.token);
-
+            logAuth('Admin signed in', { method: 'email', email: session.email });
             navigate("/dashboard");
         } catch (error) {
             console.error("There was a problem with the fetch operation:", error);
@@ -43,42 +37,5 @@ export default function useHandleLogin() {
         }
     };
 
-    const login = useGoogleLogin({
-            onSuccess: async ({ code }) => {
-                try {
-                    const response = await fetch(`${domain}/auth/google`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ code })
-                    });
-    
-                    if (!response.ok) {
-                        notifications.show({
-                            color: '#e50914',
-                            title: 'Unauthorized access',
-                            message: '',
-                            icon: <IconX style={{ width: rem(18), height: rem(18), }} stroke={3} />,
-                            autoClose: 3000,
-                            withCloseButton: false
-                        });
-                        return;
-                    }
-    
-                    const tokens = await response.json();
-    
-                    setAuthState({ firstName: tokens.firstName, lastName: tokens.lastName, email: tokens.email });
-    
-                    localStorage.setItem("session", tokens.tokens.id_token);
-    
-                    navigate("/dashboard");
-                } catch (error) {
-                    console.error("There was a problem with the fetch operation:", error);
-                }
-            },
-            flow: 'auth-code',
-        });
-
-    return { login, handleLogin, errorMessage, setErrorMessage };
+    return { handleLogin, errorMessage, setErrorMessage };
 }

@@ -15,7 +15,7 @@ import {
     ScrollArea,
 } from "@mantine/core";
 import { IconEdit, IconRefresh, IconSearch } from "@tabler/icons-react";
-
+import { logger } from '../../lib/logger';
 const endpoint = import.meta.env.VITE_ENDPOINT;
 
 interface Client {
@@ -66,9 +66,15 @@ export default function Users() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(selected),
             });
+            logger.info('Admin updated user', {  // ← add
+                clientId: selected._id,
+                name: `${selected.firstname} ${selected.lastname}`,
+                status: selected.status,
+            });
             setEditModal(false);
             fetchClients();
         } catch (err) {
+            logger.error('Admin failed to update user', { clientId: selected._id });  // ← add
             console.error("Error updating user:", err);
         }
     };

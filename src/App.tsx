@@ -4,6 +4,13 @@ import { useNavigate } from "react-router";
 import { showNotification } from "@mantine/notifications";
 import { getAppointmentStats } from "./api/appointments";
 import BookingCalendar from "./components/BookingCalendar";
+import LogRocket from 'logrocket';
+
+
+LogRocket.init('rlg94d/appointment-system');
+
+
+
 
 const statusColors: Record<string, string> = {
   Pending: "yellow",
@@ -29,6 +36,7 @@ const defaultStats: Record<string, number> = {
 export default function App() {
   const [stats, setStats] = useState<Record<string, number>>(defaultStats);
   const navigate = useNavigate();
+
 
     useEffect(() => {
         getAppointmentStats()
